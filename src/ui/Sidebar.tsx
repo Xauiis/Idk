@@ -1,13 +1,19 @@
+import { useState } from 'react';
 import { useGame } from '../game/store';
-import { getItem } from '../game/content';
+import { getItem, ELEMENTS } from '../game/content';
 import { baseId, keyGrade, quality } from '../game/quality';
 import { fmtTime } from './common';
 
 const KIND_ORDER = ['token', 'mote', 'ingredient', 'essence', 'material', 'tool', 'vessel', 'product', 'byproduct'];
+const KIND_LABEL: Record<string, string> = {
+  token: 'Token', mote: 'Element mote', ingredient: 'Ingredient', essence: 'Essence',
+  material: 'Material', tool: 'Tool', decor: 'Decor', vessel: 'Vessel', product: 'Product', byproduct: 'Byproduct',
+};
 
 export function Sidebar() {
   const inventory = useGame((s) => s.inventory);
   const log = useGame((s) => s.log);
+  const [inspect, setInspect] = useState<string | null>(null);
   const compost = useGame((s) => s.compostMuddle);
   const playSeconds = useGame((s) => s.playSeconds);
 
@@ -40,7 +46,11 @@ export function Sidebar() {
                 <div
                   className="inv-cell"
                   key={key}
-                  title={`${def.name}${q ? ` (${q.name})` : ''}${def.blurb ? ' — ' + def.blurb : ''}`}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setInspect(key)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') setInspect(key); }}
+                  title={`${def.name}${q ? ` (${q.name})` : ''} — click to inspect`}
                 >
                   {def.color && <span className="dot" style={{ background: def.color }} />}
                   {q && <span className="grade" style={{ color: q.color }}>{q.short}</span>}
@@ -70,7 +80,44 @@ export function Sidebar() {
           ))}
         </div>
       </section>
+
+      {inspect && <ItemInspect itemKey={inspect} onClose={() => setInspect(null)} />}
     </aside>
+  );
+}
+
+function ItemInspect({ itemKey, onClose }: { itemKey: string; onClose: () => void }) {
+  const def = getItem(baseId(itemKey));
+  const grade = keyGrade(itemKey);
+  const q = grade >= 0 ? quality(grade) : null;
+  const comp = def.composition;
+  return (
+    <div className="backdrop" onClick={onClose}>
+      <div className="card modal" onClick={(e) => e.stopPropagation()} style={{ textAlign: 'left', width: 'min(360px, 92vw)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 34 }}>{def.icon}</span>
+          <div>
+            <h2 style={{ margin: 0, fontSize: 20 }}>{def.name}{q ? ` · ${q.name}` : ''}</h2>
+            <div style={{ color: 'var(--muted)', fontSize: 12.5 }}>{KIND_LABEL[def.kind] ?? def.kind} · tier {def.tier}</div>
+          </div>
+        </div>
+        {def.blurb && <p style={{ color: 'var(--muted)', fontStyle: 'italic', margin: '12px 0' }}>“{def.blurb}”</p>}
+        {comp && (
+          <div style={{ margin: '8px 0' }}>
+            <div className="section-label" style={{ margin: '0 0 6px' }}>Separates into</div>
+            <div className="io">
+              {ELEMENTS.filter((e) => comp[e.id]).map((e) => (
+                <span key={e.id} className="chip" style={{ borderColor: e.color }}>
+                  <span style={{ color: e.color }}>{e.glyph}</span><span>{e.name}</span><span className="q">×{comp[e.id]}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        {def.value > 0 && <div style={{ fontSize: 13, color: 'var(--muted)' }}>Base value: 🪙 {q ? Math.round(def.value * q.valueMult) : def.value}</div>}
+        <button className="btn btn-primary" style={{ width: '100%', marginTop: 14 }} onClick={onClose}>Close</button>
+      </div>
+    </div>
   );
 }
 
