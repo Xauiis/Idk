@@ -26,6 +26,7 @@ export const PERKS: Perk[] = [
   { id: 'alchemical_insight', name: 'Alchemical Insight', icon: '✨', cost: 80, desc: '+1 quality grade to every product you craft.', qualityBonus: 1 },
   { id: 'flow_state', name: 'Flow State', icon: '🌀', cost: 120, desc: 'Every production line runs 10% faster.', speedAll: 1.1 },
   { id: 'master_distiller', name: 'Master Distiller', icon: '🫗', cost: 90, desc: 'Unlocks the Solar Distillate recipe in Distillation.', requires: 'keen_study' },
+  { id: 'deeper_mysteries', name: 'Deeper Mysteries', icon: '🌌', cost: 70, desc: 'Lets you discover the most advanced compounds in the crucible.', requires: 'cartography' },
 ];
 
 export const PERK_BY_ID: Record<string, Perk> = Object.fromEntries(PERKS.map((p) => [p.id, p]));

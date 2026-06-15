@@ -392,6 +392,15 @@ export const useGame = create<GameState>((set, get) => ({
       return { kind: 'locked', level: match.levelReq };
     }
 
+    // Match but gated behind research → no charge, gentle nudge.
+    if (match.perkReq && !s.perks.includes(match.perkReq)) {
+      set({
+        log: pushLog(s, 'This blend resists you — it awaits deeper research first.', 'info'),
+        logSeq: s.logSeq + 1,
+      });
+      return { kind: 'locked', level: 0 };
+    }
+
     take(inv, inputs);
     give(inv, match.outputs);
     const out = getItem(match.outputs[0].item);

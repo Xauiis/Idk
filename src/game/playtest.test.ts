@@ -104,6 +104,7 @@ function tryDiscoveries() {
     if (attempts >= 3) break;
     if (S().discovered.includes(r.id)) continue;
     if (r.levelReq > lvl('conjunction')) continue;
+    if (r.perkReq && !S().perks.includes(r.perkReq)) continue; // needs research first
     if (!afford(r.inputs)) continue;
     const map: Record<string, number> = {};
     for (const i of r.inputs) map[i.item] = i.qty;

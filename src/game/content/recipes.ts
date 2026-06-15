@@ -98,7 +98,7 @@ const GLASSBLOWING: Recipe[] = [
 const m = (el: string, qty = 1): ItemStack => ({ item: ELEMENT_BY_ID[el].moteId, qty });
 const it = (id: string, qty = 1): ItemStack => ({ item: id, qty });
 
-interface ConjDef { out: string; level: number; xp: number; dur: number; inputs: ItemStack[] }
+interface ConjDef { out: string; level: number; xp: number; dur: number; inputs: ItemStack[]; perkReq?: string }
 
 const CONJ: ConjDef[] = [
   // pairwise dyads
@@ -129,10 +129,10 @@ const CONJ: ConjDef[] = [
   { out: 'dewleaf_concentrate', level: 14, xp: 36, dur: 5, inputs: [it('verdant_essence'), it('mist_essence')] },
   { out: 'serenity_distillate', level: 16, xp: 42, dur: 5.4, inputs: [it('calm_essence'), it('whisper_essence')] },
   { out: 'dreamwater', level: 17, xp: 42, dur: 5.4, inputs: [it('moonwater_essence'), it('calm_essence')] },
-  { out: 'thermal_loam', level: 18, xp: 48, dur: 5.8, inputs: [it('geyser_tincture'), it('clay_essence')] },
-  { out: 'daystar_concentrate', level: 20, xp: 54, dur: 6, inputs: [it('lumen_essence'), it('radiance_essence')] },
-  { out: 'lullaby_essence', level: 23, xp: 66, dur: 6.4, inputs: [it('serenity_distillate'), it('dreamwater')] },
-  { out: 'sunforge_essence', level: 26, xp: 80, dur: 7, inputs: [it('daystar_concentrate'), it('voltaic_essence')] },
+  { out: 'thermal_loam', level: 18, xp: 48, dur: 5.8, inputs: [it('geyser_tincture'), it('clay_essence')], perkReq: 'deeper_mysteries' },
+  { out: 'daystar_concentrate', level: 20, xp: 54, dur: 6, inputs: [it('lumen_essence'), it('radiance_essence')], perkReq: 'deeper_mysteries' },
+  { out: 'lullaby_essence', level: 23, xp: 66, dur: 6.4, inputs: [it('serenity_distillate'), it('dreamwater')], perkReq: 'deeper_mysteries' },
+  { out: 'sunforge_essence', level: 26, xp: 80, dur: 7, inputs: [it('daystar_concentrate'), it('voltaic_essence')], perkReq: 'deeper_mysteries' },
 ];
 
 const CONJUNCTION: Recipe[] = CONJ.map((c) => ({
@@ -145,6 +145,7 @@ const CONJUNCTION: Recipe[] = CONJ.map((c) => ({
   inputs: c.inputs,
   outputs: [{ item: c.out, qty: 1 }],
   unlock: 'experiment',
+  perkReq: c.perkReq,
 }));
 
 // ── Remedycraft: formulate essences (+ a vessel) into finished products ──
