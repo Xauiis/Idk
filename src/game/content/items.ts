@@ -41,6 +41,9 @@ const INGREDIENTS: ItemDef[] = [
   { id: 'kelp', name: 'Kelp', kind: 'ingredient', icon: '🌿', tier: 1, value: 4, composition: { aqua: 3, aer: 1 }, blurb: 'Long green ribbons of the shallows.' },
   { id: 'tidewort', name: 'Tidewort', kind: 'ingredient', icon: '☘️', tier: 2, value: 5, composition: { aqua: 2, terra: 1, aer: 1 }, blurb: 'Clings to the reed-roots.' },
   { id: 'brinepearl', name: 'Brinepearl', kind: 'ingredient', icon: '🫧', tier: 3, value: 9, composition: { aqua: 2, aether: 2 }, blurb: 'A bead of moonlit seawater.' },
+  // Husbandry (tended creatures)
+  { id: 'honey', name: 'Honey', kind: 'ingredient', icon: '🍯', tier: 1, value: 5, composition: { aer: 2, aqua: 1, ignis: 1 }, blurb: 'Sweet, golden and slow.' },
+  { id: 'cinder_egg', name: 'Cinder Egg', kind: 'ingredient', icon: '🥚', tier: 2, value: 7, composition: { ignis: 3, aether: 1 }, blurb: 'Warm and faintly glowing.' },
 ];
 
 // ── Essences & compounds (discovered via Conjunction) ──
@@ -110,6 +113,15 @@ const MATERIALS: ItemDef[] = [
   { id: 'dreamsilk', name: 'Dreamsilk', kind: 'material', icon: '🧵', color: '#c9b6e0', tier: 3, value: 24, blurb: 'Woven from settled mist.' },
   { id: 'glass_lens', name: 'Glass Lens', kind: 'material', icon: '🔍', color: '#9fd0dd', tier: 3, value: 28, blurb: 'Ground until the world bends through it.' },
   { id: 'aether_alloy', name: 'Aether Alloy', kind: 'material', icon: '🔷', color: '#9b7ad0', tier: 5, value: 60, blurb: 'It hums when you are not looking.' },
+  { id: 'stardust', name: 'Stardust', kind: 'material', icon: '⭐', color: '#cdbce6', tier: 3, value: 16, blurb: 'Swept from the edge of a constellation.' },
+];
+
+// ── Decor (Curation output; raises shop Coziness while owned) ──
+const DECOR: ItemDef[] = [
+  { id: 'decor_chimes', name: 'Hanging Chimes', kind: 'decor', icon: '🎐', color: '#9fd0dd', tier: 1, value: 0, blurb: 'They tinkle softly in the draught. Coziness +5.' },
+  { id: 'decor_rug', name: 'Woven Rug', kind: 'decor', icon: '🟫', color: '#c9b6e0', tier: 2, value: 0, blurb: 'Warm underfoot. Coziness +9.' },
+  { id: 'decor_lantern', name: 'Crystal Lantern', kind: 'decor', icon: '🏮', color: '#f0cf6a', tier: 3, value: 0, blurb: 'A pool of golden light. Coziness +14.' },
+  { id: 'decor_mobile', name: 'Starfall Mobile', kind: 'decor', icon: '🎏', color: '#c89bee', tier: 4, value: 0, blurb: 'Tiny stars drift overhead. Coziness +22.' },
 ];
 
 // ── Tools (crafted; grant a passive bonus while held) ──
@@ -167,8 +179,20 @@ const BYPRODUCTS: ItemDef[] = [
 
 export const ITEMS: ItemDef[] = [
   ...MOTES, ...INGREDIENTS, ...ESSENCES, ...DISTILLATES, ...ARCANE, ...SIGILS,
-  ...MATERIALS, ...TOOLS, ...VESSELS, ...TOKENS, ...PRODUCTS, ...BYPRODUCTS,
+  ...MATERIALS, ...TOOLS, ...DECOR, ...VESSELS, ...TOKENS, ...PRODUCTS, ...BYPRODUCTS,
 ];
+
+/** Coziness contributed by each decor item while it's owned. */
+export const DECOR_COZINESS: Record<string, number> = {
+  decor_chimes: 5, decor_rug: 9, decor_lantern: 14, decor_mobile: 22,
+};
+
+/** Total shop Coziness from owned decor. */
+export function coziness(inventory: Record<string, number>): number {
+  let n = 0;
+  for (const [id, pts] of Object.entries(DECOR_COZINESS)) if ((inventory[id] ?? 0) > 0) n += pts;
+  return n;
+}
 
 /** Tool bonuses, keyed by tool item id. */
 export const TOOL_BONUS: Record<string, import('../types').ToolBonus> = {

@@ -28,9 +28,9 @@ export const UPGRADE_BY_ID: Record<string, Upgrade> = Object.fromEntries(UPGRADE
 
 function baseSkillMap(): Record<SkillId, number> {
   return {
-    foraging: 1, gardening: 1, prospecting: 1, tidewalking: 1, aethercraft: 1, separation: 1,
-    glassblowing: 1, calcination: 1, conjunction: 1, distillation: 1, transmutation: 1, inscription: 1,
-    remedycraft: 1, feltcraft: 1, lore: 1, hospitality: 1,
+    foraging: 1, gardening: 1, prospecting: 1, tidewalking: 1, husbandry: 1, astrology: 1, aethercraft: 1,
+    separation: 1, glassblowing: 1, calcination: 1, conjunction: 1, distillation: 1, transmutation: 1,
+    inscription: 1, remedycraft: 1, feltcraft: 1, curation: 1, lore: 1, hospitality: 1,
   };
 }
 

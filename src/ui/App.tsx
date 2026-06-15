@@ -12,7 +12,8 @@ import { CodexPanel } from './CodexPanel';
 import { ShopPanel } from './ShopPanel';
 import { LabPanel } from './LabPanel';
 import { MapPanel } from './MapPanel';
-import { seasonAt, seasonRemaining } from '../game/content';
+import { AlmanacPanel } from './AlmanacPanel';
+import { seasonAt, seasonRemaining, moonAt, coziness } from '../game/content';
 import { fmtTime } from './common';
 import { Sidebar } from './Sidebar';
 import { OfflineModal, type OfflineSummary } from './OfflineModal';
@@ -66,6 +67,8 @@ export function App() {
             <LabPanel onSelect={setSelected} />
           ) : selected === 'map' ? (
             <MapPanel />
+          ) : selected === 'almanac' ? (
+            <AlmanacPanel />
           ) : selected === 'codex' ? (
             <CodexPanel />
           ) : selected === 'shop' ? (
@@ -97,8 +100,10 @@ function TopBar() {
   const rep = useGame((s) => s.reputation);
   const insight = useGame((s) => s.inventory.insight ?? 0);
   const playSeconds = useGame((s) => s.playSeconds);
+  const cozy = useGame((s) => coziness(s.inventory));
   const hardReset = useGame((s) => s.hardReset);
   const season = seasonAt(playSeconds);
+  const moon = moonAt(playSeconds);
   return (
     <header className="topbar">
       <div className="brand">
@@ -112,6 +117,8 @@ function TopBar() {
       <div className="stat" title={`${season.festival}: ${season.blurb}`} style={{ borderColor: season.color }}>
         <span>{season.icon}</span> {season.name} <small>{fmtTime(seasonRemaining(playSeconds))} left</small>
       </div>
+      <div className="stat" title={`${moon.name}: ${moon.boon}`}><span>{moon.icon}</span> <small>{moon.name}</small></div>
+      {cozy > 0 && <div className="stat" title="Coziness — better tips & more patient customers"><span>🎀</span> {cozy} <small>cozy</small></div>}
       <div className="stat" title="Coins"><span>🪙</span> {Math.floor(coins)} <small>coins</small></div>
       {insight > 0 && <div className="stat" title="Insight — spend in the Lore research log"><span>💡</span> {Math.floor(insight)} <small>insight</small></div>}
       <div className="stat" title="Reputation in Mirefen"><span>❤</span> {rep} <small>rep</small></div>

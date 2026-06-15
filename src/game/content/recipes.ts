@@ -63,6 +63,7 @@ const SEPARATION: Recipe[] = [
   'lavender', 'chamomile', 'mistleaf', 'embercap', 'thornbud', 'moondrop', 'dreamcap', 'glimmerbloom',
   'honeyclover', 'ironroot', 'saltreed', 'frostmint', 'sunpetal', 'dawnberry', 'starthistle',
   'quartz', 'salt_crystal', 'emberstone', 'voidshard', 'kelp', 'tidewort', 'brinepearl',
+  'honey', 'cinder_egg',
 ].map((ingId) => {
   const ing = getItem(ingId);
   const comp = ing.composition ?? {};
@@ -287,9 +288,42 @@ const TRANSMUTATION: Recipe[] = [
     inputs: [it('aether_alloy')], outputs: [it('aether_signet')] },
 ];
 
+// ── Husbandry: tend creatures over time for reagents (no inputs) ──
+const HUSBANDRY: Recipe[] = [
+  { id: 'tend_bees', name: 'Tend Honeybees', skill: 'husbandry', levelReq: 1, duration: 4, xp: 11, unlock: 'taught',
+    inputs: [], outputs: [it('honey')], blurb: 'A hum of bees, a drip of honey.' },
+  { id: 'tend_glowcrabs', name: 'Tend Glowcrabs', skill: 'husbandry', levelReq: 8, duration: 5, xp: 26, unlock: 'taught',
+    inputs: [], outputs: [m('aether', 2)], blurb: 'They scuttle and leave Aether in their wake.' },
+  { id: 'tend_cinderfowl', name: 'Tend Cinderfowl', skill: 'husbandry', levelReq: 15, duration: 5.5, xp: 40, unlock: 'taught',
+    inputs: [], outputs: [it('cinder_egg')], blurb: 'Warm birds that lay glowing eggs.' },
+];
+
+// ── Astrology: stargaze for Stardust (the celestial reagent) ──
+const ASTROLOGY: Recipe[] = [
+  { id: 'chart_minor', name: 'Chart a Minor Constellation', skill: 'astrology', levelReq: 1, duration: 4.5, xp: 12, unlock: 'taught',
+    inputs: [], outputs: [it('stardust')], blurb: 'Trace a small pattern; catch its dust.' },
+  { id: 'chart_major', name: 'Chart a Major Constellation', skill: 'astrology', levelReq: 10, duration: 5.5, xp: 32, unlock: 'taught',
+    inputs: [], outputs: [it('stardust', 2)], blurb: 'Brighter stars, richer dust.' },
+  { id: 'chart_grand', name: 'Chart the Grand Wheel', skill: 'astrology', levelReq: 22, duration: 7, xp: 70, unlock: 'taught',
+    inputs: [], outputs: [it('stardust', 3)], blurb: 'The whole turning sky, read at once.' },
+];
+
+// ── Curation: craft decor that raises shop Coziness ──
+const CURATION: Recipe[] = [
+  { id: 'craft_chimes', name: 'Hanging Chimes', skill: 'curation', levelReq: 1, duration: 5, xp: 30, unlock: 'taught',
+    inputs: [it('glass_lens'), it('stardust', 2)], outputs: [it('decor_chimes')] },
+  { id: 'craft_rug', name: 'Woven Rug', skill: 'curation', levelReq: 8, duration: 6, xp: 60, unlock: 'taught',
+    inputs: [it('dreamsilk', 2), it('stardust', 2)], outputs: [it('decor_rug')] },
+  { id: 'craft_lantern', name: 'Crystal Lantern', skill: 'curation', levelReq: 14, duration: 6.5, xp: 100, unlock: 'taught',
+    inputs: [it('glass_lens', 2), it('lumen_essence'), it('stardust', 3)], outputs: [it('decor_lantern')] },
+  { id: 'craft_mobile', name: 'Starfall Mobile', skill: 'curation', levelReq: 22, duration: 8, xp: 180, unlock: 'taught',
+    inputs: [it('aether_alloy'), it('stardust', 5)], outputs: [it('decor_mobile')] },
+];
+
 export const RECIPES: Recipe[] = [
-  ...GATHERING, ...AETHERCRAFT, ...SEPARATION, ...GLASSBLOWING, ...CALCINATION, ...CONJUNCTION,
-  ...DISTILLATION, ...TRANSMUTATION, ...INSCRIPTION, ...REMEDYCRAFT, ...FELTCRAFT, ...LORE,
+  ...GATHERING, ...AETHERCRAFT, ...HUSBANDRY, ...ASTROLOGY, ...SEPARATION, ...GLASSBLOWING,
+  ...CALCINATION, ...CONJUNCTION, ...DISTILLATION, ...TRANSMUTATION, ...INSCRIPTION,
+  ...REMEDYCRAFT, ...FELTCRAFT, ...CURATION, ...LORE,
 ];
 
 export const RECIPE_BY_ID: Record<string, Recipe> = Object.fromEntries(RECIPES.map((r) => [r.id, r]));
@@ -303,6 +337,7 @@ export function inputSignature(inputs: ItemStack[]): string {
 
 /** Skills that can run a production line (everything except Hospitality). */
 export const LINE_SKILLS: SkillId[] = [
-  'foraging', 'gardening', 'prospecting', 'tidewalking', 'aethercraft', 'separation', 'glassblowing',
-  'calcination', 'conjunction', 'distillation', 'transmutation', 'inscription', 'remedycraft', 'feltcraft', 'lore',
+  'foraging', 'gardening', 'prospecting', 'tidewalking', 'husbandry', 'astrology', 'aethercraft',
+  'separation', 'glassblowing', 'calcination', 'conjunction', 'distillation', 'transmutation',
+  'inscription', 'remedycraft', 'feltcraft', 'curation', 'lore',
 ];

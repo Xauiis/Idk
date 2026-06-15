@@ -80,6 +80,8 @@ function manage() {
   rotate('gardening');
   rotate('prospecting');
   rotate('tidewalking');
+  rotate('husbandry');
+  rotate('astrology');
   // aether: refine if we have a surplus, otherwise channel
   if (held('mote_aether') > 25 && afford([{ item: 'mote_aether', qty: 5 }])) S().setActive('aethercraft', 'refine_quintessence');
   else rotate('aethercraft');
@@ -92,6 +94,7 @@ function manage() {
   leastStocked('inscription');
   leastStocked('remedycraft');
   leastStocked('feltcraft');
+  leastStocked('curation');
   leastStocked('lore');
 }
 

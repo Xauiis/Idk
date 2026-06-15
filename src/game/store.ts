@@ -13,6 +13,8 @@ import {
   BIOME_BY_ID,
   seasonAt,
   FESTIVAL_BONUS,
+  moonAt,
+  coziness,
   speedMultipliers,
   productQualityBonus,
   yieldBonus,
@@ -27,9 +29,9 @@ const LOG_LIMIT = 60;
 // Production flows along this order each tick, so a gather→separate→combine→craft
 // chain can move one step within a single tick.
 const SKILL_ORDER: SkillId[] = [
-  'foraging', 'gardening', 'prospecting', 'tidewalking', 'aethercraft', 'separation', 'glassblowing',
-  'calcination', 'conjunction', 'distillation', 'transmutation', 'inscription',
-  'remedycraft', 'feltcraft', 'lore', 'hospitality',
+  'foraging', 'gardening', 'prospecting', 'tidewalking', 'husbandry', 'astrology', 'aethercraft',
+  'separation', 'glassblowing', 'calcination', 'conjunction', 'distillation', 'transmutation',
+  'inscription', 'remedycraft', 'feltcraft', 'curation', 'lore', 'hospitality',
 ];
 
 /** Order-book capacity grows as the town comes to rely on you. */
@@ -101,9 +103,10 @@ export interface LinePreset {
 
 function emptySkillMap<T>(value: T): Record<SkillId, T> {
   return {
-    foraging: value, gardening: value, prospecting: value, tidewalking: value, aethercraft: value,
-    separation: value, glassblowing: value, calcination: value, conjunction: value, distillation: value,
-    transmutation: value, inscription: value, remedycraft: value, feltcraft: value, lore: value, hospitality: value,
+    foraging: value, gardening: value, prospecting: value, tidewalking: value, husbandry: value,
+    astrology: value, aethercraft: value, separation: value, glassblowing: value, calcination: value,
+    conjunction: value, distillation: value, transmutation: value, inscription: value,
+    remedycraft: value, feltcraft: value, curation: value, lore: value, hospitality: value,
   };
 }
 
@@ -160,6 +163,8 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
   let itemsMade = state.stats.itemsMade;
   const speed = speedMultipliers(state.upgrades, state.perks);
   const seasonIdx = seasonAt(state.playSeconds).index;
+  const moon = moonAt(state.playSeconds).index; // 0 new, 1 waxing, 2 full, 3 waning
+  const GATHER_SKILLS = new Set<SkillId>(['foraging', 'gardening', 'prospecting', 'tidewalking', 'husbandry', 'astrology', 'aethercraft']);
 
   for (const skill of SKILL_ORDER) {
     const recipeId = state.activeRecipe[skill];
@@ -171,9 +176,14 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
 
     const effDur = recipe.duration / (speed[skill] ?? 1);
     const producesProduct = recipe.outputs.some((o) => getItem(o.item).kind === 'product');
-    const qBonus = producesProduct ? productQualityBonus(skill, state.perks, inv) : 0;
-    const gather = (skill === 'foraging' || skill === 'gardening') ? yieldBonus(skill, state.perks) : 0;
-    const insightMul = skill === 'lore' ? insightMultiplier(state.perks) : 1;
+    const isGather = GATHER_SKILLS.has(skill);
+    // quality: research/tools + Waning-moon boon
+    const qBonus = producesProduct ? productQualityBonus(skill, state.perks, inv) + (moon === 3 ? 1 : 0) : 0;
+    // gather yield: research perk + Waxing-moon boon
+    const gather = (isGather ? yieldBonus(skill, state.perks) : 0) + (isGather && moon === 1 ? 1 : 0);
+    // insight: research perk + New-moon boon
+    const insightMul = skill === 'lore' ? insightMultiplier(state.perks) * (moon === 0 ? 1.5 : 1) : 1;
+    const fullMoonAether = skill === 'aethercraft' && moon === 2;
     const cap = state.lineCap[skill];
     const primary = recipe.outputs[0]?.item;
 
@@ -195,6 +205,7 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
         const def = getItem(o.item);
         let qty = o.qty;
         if (gather && recipe.inputs.length === 0) qty += gather; // bonus herbs on gather
+        if (fullMoonAether && o.item === 'mote_aether') qty += 1; // Full-moon Aether boon
         if (def.kind === 'product') {
           const grade = gradeFor(level, recipe.levelReq, qBonus);
           const key = pkey(o.item, grade);
@@ -237,7 +248,8 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
         hospitalityXp: Math.round(product.value * qty * 0.6),
         story: tpl.story,
         createdAt: Math.floor(playSeconds),
-        expiresAt: playSeconds + 180 + Math.random() * 180, // 3–6 cozy minutes
+        // 3–6 minutes, extended by shop Coziness (patient customers)
+        expiresAt: playSeconds + 180 + Math.random() * 180 + coziness(inv) * 2,
         featured,
       },
     ];
@@ -403,7 +415,8 @@ export const useGame = create<GameState>((set, get) => ({
       need -= take;
     }
     const avgMult = valueSum / order.qty;
-    const coins = Math.round(order.coins * avgMult);
+    const cozyMult = 1 + coziness(s.inventory) / 200; // cosier shop → bigger tips
+    const coins = Math.round(order.coins * avgMult * cozyMult);
     const xp = { ...s.skillXp };
     xp.hospitality += order.hospitalityXp;
     set({

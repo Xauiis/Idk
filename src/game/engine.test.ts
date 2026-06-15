@@ -3,7 +3,7 @@ import { useGame, maxOrders } from './store';
 import { levelForXp, xpForLevel } from './xp';
 import { lineInfo, itemFlows } from './analytics';
 import { availableRecipes, inSeason } from './selectors';
-import { RECIPE_BY_ID, seasonAt, SEASON_LENGTH } from './content';
+import { RECIPE_BY_ID, seasonAt, SEASON_LENGTH, moonAt, MOON_LENGTH, coziness } from './content';
 
 beforeEach(() => {
   useGame.getState().hardReset();
@@ -218,6 +218,33 @@ describe('phase 5 — world & seasons', () => {
     expect(maxOrders(0)).toBe(5);
     expect(maxOrders(120)).toBe(8);
     expect(maxOrders(999)).toBe(10);
+  });
+});
+
+describe('phase 6 — meta systems', () => {
+  it('Husbandry tends creatures for reagents (incl. an Aether source)', () => {
+    const g = useGame.getState();
+    g.setActive('husbandry', 'tend_bees'); // → honey, 4s
+    g.tick(4);
+    expect(useGame.getState().inventory.honey).toBe(1);
+  });
+
+  it('Astrology stargazes for Stardust, and Curation turns it into decor + Coziness', () => {
+    const g = useGame.getState();
+    g.setActive('curation', 'craft_chimes'); // glass_lens + 2 stardust → decor_chimes, 5s
+    useGame.setState({ inventory: { glass_lens: 1, stardust: 2 } });
+    g.tick(5);
+    expect(useGame.getState().inventory.decor_chimes).toBe(1);
+    expect(coziness(useGame.getState().inventory)).toBe(5);
+  });
+
+  it('the Full Moon grants +1 Aether per channel', () => {
+    const g = useGame.getState();
+    useGame.setState({ playSeconds: MOON_LENGTH * 2 }); // Full Moon (phase index 2)
+    expect(moonAt(useGame.getState().playSeconds).name).toBe('Full Moon');
+    g.setActive('aethercraft', 'channel_ley'); // base 1 aether/5s
+    g.tick(5);
+    expect(useGame.getState().inventory.mote_aether).toBe(2); // +1 from the moon
   });
 });
 

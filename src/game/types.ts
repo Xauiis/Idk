@@ -19,6 +19,9 @@ export type SkillId =
   | 'inscription'
   | 'remedycraft'
   | 'feltcraft'
+  | 'curation'
+  | 'astrology'
+  | 'husbandry'
   | 'lore'
   | 'hospitality';
 
@@ -29,6 +32,7 @@ export type ItemKind =
   | 'essence' // refined / combined intermediate
   | 'material' // salts, ash, alloys — feedstock for the Materials tree
   | 'tool' // a crafted item that grants a passive bonus while owned
+  | 'decor' // a crafted furnishing that raises shop Coziness while owned
   | 'vessel' // glassware that holds finished goods
   | 'product' // a finished, sellable good (carries a quality grade)
   | 'token' // abstract currency-like items (Insight)

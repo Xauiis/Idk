@@ -5,6 +5,8 @@ export const SKILLS: SkillDef[] = [
   { id: 'gardening', name: 'Gardening', cluster: 'gather', icon: '🌱', color: '#7fb069', blurb: 'Grow your own reagents in tidy plots.' },
   { id: 'prospecting', name: 'Prospecting', cluster: 'gather', icon: '⛏️', color: '#b08a5a', blurb: 'Mine salts, quartz and emberstone from the caves.' },
   { id: 'tidewalking', name: 'Tidewalking', cluster: 'gather', icon: '🐚', color: '#5aa9dd', blurb: 'Gather kelp, pearls and brine from the coast.' },
+  { id: 'husbandry', name: 'Husbandry', cluster: 'gather', icon: '🐝', color: '#e0b85a', blurb: 'Tend cozy creatures for honey, dust and Aether.' },
+  { id: 'astrology', name: 'Astrology', cluster: 'gather', icon: '🔭', color: '#9b8fd6', blurb: 'Read the night sky for stardust and lunar timing.' },
   { id: 'aethercraft', name: 'Aethercraft', cluster: 'gather', icon: '✦', color: '#c08ae0', blurb: 'Channel raw Aether from the ley-blooms.' },
   { id: 'separation', name: 'Separation', cluster: 'process', icon: '⚗️', color: '#4f9dd1', blurb: 'Decompose ingredients into pure element motes.' },
   { id: 'glassblowing', name: 'Glassblowing', cluster: 'process', icon: '🥃', color: '#6fb6c9', blurb: 'Shape sand and fire into vials to hold your wares.' },
@@ -15,6 +17,7 @@ export const SKILLS: SkillDef[] = [
   { id: 'inscription', name: 'Inscription', cluster: 'conjure', icon: '🪶', color: '#b08fd0', blurb: 'Etch sigils — and program your lines to brew just enough.' },
   { id: 'remedycraft', name: 'Remedycraft', cluster: 'craft', icon: '🧪', color: '#d9663f', blurb: 'Formulate essences into finished remedies.' },
   { id: 'feltcraft', name: 'Feltcraft', cluster: 'craft', icon: '🫧', color: '#d68fc4', blurb: 'Distill and bottle emotions for the townsfolk who need them.' },
+  { id: 'curation', name: 'Curation', cluster: 'craft', icon: '🎀', color: '#e09ac0', blurb: 'Adorn the shop with decor that makes it cosier.' },
   { id: 'lore', name: 'Lore', cluster: 'support', icon: '📚', color: '#b98fd6', blurb: 'Study your craft to earn Insight and unlock research.' },
   { id: 'hospitality', name: 'Hospitality', cluster: 'support', icon: '🫖', color: '#e0a05a', blurb: 'Read your customers and keep the shop warm.' },
 ];

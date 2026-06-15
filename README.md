@@ -37,7 +37,7 @@ npm run preview  # serve the production build
 npm test         # run the engine + UI test suite (Vitest)
 ```
 
-The skill rail groups everything by its premise so the loop reads at a glance: **Gather → Refine → Conjure → Craft → Shop**. The **🏚️ The Lab** tab shows every line at once; the **🗺️ World Map** charts new biomes; the top bar shows the current **season** and its festival.
+The skill rail groups everything by its premise so the loop reads at a glance: **Gather → Refine → Conjure → Craft → Shop**. The **🏚️ The Lab** tab shows every line at once; the **🗺️ World Map** charts new biomes; the **🏆 Almanac** tracks achievements; the top bar shows the current **season**, **moon phase**, and **Coziness**.
 
 ### How to play the current build
 1. **Foraging / Gardening** — pick an ingredient and press **Begin**; it gathers on a loop. Each skill runs its own line at once, so the shop hums.
@@ -67,14 +67,15 @@ Everything **ticks while idle** and continues offline — close the tab and the 
 - **`src/game/*.test.ts`** — engine + UI tests (XP table, production lines, discovery, orders, render smoke).
 
 ## Status
-Design + roadmap complete. **Phases 0–5 are built and playable:**
-- **16 skills**, grouped by premise (Gather → Refine → Conjure → Craft → Shop) — Foraging, Gardening, Prospecting, Tidewalking, Aethercraft, Separation, Glassblowing, Calcination, Conjunction, Distillation, Transmutation, Inscription, Remedycraft, Feltcraft, Lore, Hospitality
-- The 5-element system · a ~28-recipe discoverable combination web · distillates · a managed **Aether/Quintessence economy** · materials, tools & sigils
+Design + roadmap complete. **Phases 0–6 are built and playable:**
+- **19 skills**, grouped by premise (Gather → Refine → Conjure → Craft → Shop) — Foraging, Gardening, Prospecting, Tidewalking, Husbandry, Astrology, Aethercraft, Separation, Glassblowing, Calcination, Conjunction, Distillation, Transmutation, Inscription, Remedycraft, Feltcraft, Curation, Lore, Hospitality
+- The 5-element system · a ~28-recipe discoverable combination web · distillates · a managed **Aether/Quintessence economy** · materials, tools, sigils & stardust
 - **All three product trees live**: Remedies, **Bottled Feelings** (Feltcraft), and the Materials tree (tools + luxury goods)
 - **Deterministic quality system** (Crude → Fine → Pure → Pristine) with min-quality orders and quality-scaled rewards
-- **A world of 6 biomes** to chart for new ingredients, a **four-season cycle** with seasonal crops and **festivals** that pay bonuses, and **reputation tiers** that grow your order book (5 → 10 slots)
-- **Programmable lines** ("brew until N, then idle") and **The Lab dashboard** — every line's status & rate, net resource-flow analytics with bottleneck flags, stop-all, and save/apply line presets
-- **Lore research** (Study → Insight → perks) · Codex · World Map · shop upgrades · 28 townsfolk orders incl. emotional-need stories · idle + capped offline progress · autosave
-- Verified: typecheck clean, **27 tests passing** (incl. a 90-minute headless playtest), production build OK.
+- **A world of 6 biomes** to chart, a **four-season cycle** with seasonal crops + **festivals**, and a faster **moon-phase cycle** whose four phases each grant a timing boon (read via Astrology)
+- **Husbandry** creatures (incl. an Aether source), **Curation** decor that raises a **Coziness** stat (bigger tips, more patient customers), and an **Almanac** collection log of 15 achievements
+- **Programmable lines** ("brew until N, then idle") and **The Lab dashboard** with net resource-flow analytics & presets
+- **Lore research** (Study → Insight → perks) · Codex · World Map · reputation-tiered order book (5 → 10) · idle + capped offline progress · autosave
+- Verified: typecheck clean, **30 tests passing** (incl. a 90-minute headless playtest), production build OK.
 
-Next up per [`docs/ROADMAP.md`](docs/ROADMAP.md) **Phase 6**: cozy meta-systems & the "new skill" cadence — Astrology, Husbandry, Curation, achievements/collection logs.
+Next up per [`docs/ROADMAP.md`](docs/ROADMAP.md) **Phase 7**: the Magnum Opus endgame, New Bloom prestige, and live/social systems.
