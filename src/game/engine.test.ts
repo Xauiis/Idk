@@ -3,7 +3,7 @@ import { useGame, maxOrders } from './store';
 import { levelForXp, xpForLevel } from './xp';
 import { lineInfo, itemFlows } from './analytics';
 import { availableRecipes, inSeason } from './selectors';
-import { RECIPE_BY_ID, seasonAt, SEASON_LENGTH, moonAt, MOON_LENGTH, coziness } from './content';
+import { RECIPE_BY_ID, seasonAt, SEASON_LENGTH, moonAt, MOON_LENGTH, coziness, QUESTS } from './content';
 
 beforeEach(() => {
   useGame.getState().hardReset();
@@ -85,7 +85,7 @@ describe('glassblowing & upgrades', () => {
   it('an upgrade speeds up a line so more cycles complete per second', () => {
     const g = useGame.getState();
     g.setActive('foraging', 'forage_lavender'); // base 3s
-    useGame.setState({ coins: 1000 });
+    useGame.setState({ coins: 1000, questsClaimed: QUESTS.map((q) => q.id) }); // silence quest rewards
     g.buyUpgrade('whittled_basket'); // foraging ×1.2 → eff 2.5s
     g.tick(3);
     // With 3s at eff 2.5s, one full cycle completes (1.2 partial) → exactly 1 lavender.
@@ -284,6 +284,17 @@ describe('phase 7 — the Great Work & prestige', () => {
     expect(b.greatWork).toBe(0);
     expect(b.coins).toBe(25 + 150); // BLOOM_START_COINS × 1
     expect(b.skillXp.conjunction).toBe(0); // fresh run
+  });
+});
+
+describe('polish — onboarding quests', () => {
+  it('auto-completes a quest from play and pays its reward', () => {
+    const g = useGame.getState();
+    g.setActive('foraging', 'forage_lavender');
+    g.tick(3); // foraging used → "Into the hedgerows" completes (+10 coins)
+    const s = useGame.getState();
+    expect(s.questsClaimed).toContain('forage');
+    expect(s.coins).toBe(25 + 10);
   });
 });
 

@@ -37,6 +37,8 @@ npm run preview  # serve the production build
 npm test         # run the engine + UI test suite (Vitest)
 ```
 
+New here? A first-run welcome and the **📋 First Steps** tab walk you through the loop — a guided checklist that completes itself as you play and pays small rewards, with a one-line "next step" nudge under the top bar until you've found your feet.
+
 The skill rail groups everything by its premise so the loop reads at a glance: **Gather → Refine → Conjure → Craft → Shop**. The **🏚️ The Lab** tab shows every line at once; the **🗺️ World Map** charts new biomes; the **🏆 Almanac** tracks achievements; **🜚 The Great Work** is the endgame; the top bar shows the current **season**, **moon phase**, and **Coziness**.
 
 ### How to play the current build
@@ -77,6 +79,7 @@ Design + roadmap complete. **The full 0–7 roadmap is built and playable:**
 - **Programmable lines** ("brew until N, then idle") and **The Lab dashboard** with net resource-flow analytics & presets
 - **The Great Work** endgame — synthesise the **Philosopher's Stone** through the four alchemical stages (Nigredo → Albedo → Citrinitas → Rubedo), then **New Bloom** (prestige / New Game+) for a permanent, stacking legacy speed bonus
 - **Lore research** (Study → Insight → perks) · Codex · World Map · Almanac · reputation-tiered order book (5 → 10) · idle + capped offline progress · autosave · **export/import save codes**
-- Verified: typecheck clean, **32 tests passing** (incl. a 90-minute headless playtest), production build OK.
+- **Onboarding**: a first-run welcome modal, a 13-step **First Steps** quest path (auto-completing, with rewards), and a "next step" nudge bar
+- Verified: typecheck clean, **33 tests passing** (incl. a 90-minute headless playtest), production build OK.
 
 The roadmap's solo-play arc is complete. Remaining Phase 7 items are **server-dependent** (cloud sync, shared codex, leaderboards) and out of scope for this client-only build; see [`docs/ROADMAP.md`](docs/ROADMAP.md).

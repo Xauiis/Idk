@@ -51,6 +51,7 @@ export function SkillRail({ selected, onSelect }: { selected: string; onSelect: 
       <div className="rail-divider" />
       <div className="rail-title">Almanac</div>
       {[
+        { id: 'quests', icon: '📋', name: 'First Steps', color: '#8fc77e' },
         { id: 'map', icon: '🗺️', name: 'World Map', color: '#86c07c' },
         { id: 'codex', icon: '📖', name: 'Codex', color: '#c08ae0' },
         { id: 'almanac', icon: '🏆', name: 'Almanac', color: '#e7c46b' },

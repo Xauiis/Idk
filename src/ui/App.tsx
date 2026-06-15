@@ -14,7 +14,8 @@ import { LabPanel } from './LabPanel';
 import { MapPanel } from './MapPanel';
 import { AlmanacPanel } from './AlmanacPanel';
 import { AscendPanel } from './AscendPanel';
-import { seasonAt, seasonRemaining, moonAt, coziness } from '../game/content';
+import { QuestsPanel } from './QuestsPanel';
+import { seasonAt, seasonRemaining, moonAt, coziness, QUESTS } from '../game/content';
 import { fmtTime } from './common';
 import { Sidebar } from './Sidebar';
 import { OfflineModal, type OfflineSummary } from './OfflineModal';
@@ -24,13 +25,15 @@ const TICK_MS = 100;
 export function App() {
   const [selected, setSelected] = useState<string>('foraging');
   const [offline, setOffline] = useState<OfflineSummary | null>(null);
+  const [welcome, setWelcome] = useState(false);
   const booted = useRef(false);
 
   // Boot: load save + apply offline progress once.
   useEffect(() => {
     if (booted.current) return;
     booted.current = true;
-    loadGame();
+    const loaded = loadGame();
+    if (!loaded) setWelcome(true); // first-ever visit
     const summary = useGame.getState().applyOffline();
     if (summary) setOffline(summary);
   }, []);
@@ -61,10 +64,13 @@ export function App() {
   return (
     <div className="app">
       <TopBar />
+      <NudgeBar onOpen={() => setSelected('quests')} hidden={selected === 'quests'} />
       <div className="layout">
         <SkillRail selected={selected} onSelect={setSelected} />
         <main className="card panel">
-          {selected === 'lab' ? (
+          {selected === 'quests' ? (
+            <QuestsPanel />
+          ) : selected === 'lab' ? (
             <LabPanel onSelect={setSelected} />
           ) : selected === 'map' ? (
             <MapPanel />
@@ -94,6 +100,42 @@ export function App() {
         <Sidebar />
       </div>
       {offline && <OfflineModal summary={offline} onClose={() => setOffline(null)} />}
+      {welcome && <WelcomeModal onClose={() => { setWelcome(false); setSelected('quests'); }} />}
+    </div>
+  );
+}
+
+function NudgeBar({ onOpen, hidden }: { onOpen: () => void; hidden: boolean }) {
+  const claimed = useGame((s) => s.questsClaimed);
+  if (hidden) return null;
+  const next = QUESTS.find((q) => !claimed.includes(q.id));
+  if (!next) return null;
+  return (
+    <button className="nudge" onClick={onOpen} title="Open First Steps">
+      <span className="nudge-ic">{next.icon}</span>
+      <span><b>Next step:</b> {next.hint}</span>
+      <span className="nudge-go">First Steps ›</span>
+    </button>
+  );
+}
+
+function WelcomeModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="backdrop" onClick={onClose}>
+      <div className="card modal" onClick={(e) => e.stopPropagation()}>
+        <div style={{ fontSize: 40 }}>⚗️</div>
+        <h2>Welcome to Quintessence</h2>
+        <p>
+          You've inherited a sleepy apothecary in the town of Mirefen. Here, alchemy is elemental: break
+          ingredients into the five elements, recombine them to discover essences, and bottle them into
+          remedies, feelings and treasures for the townsfolk.
+        </p>
+        <p style={{ color: 'var(--text)' }}>
+          The loop, at a glance: <b>Gather → Refine → Conjure → Craft → Serve</b>. Everything keeps ticking
+          while you're away.
+        </p>
+        <button className="btn btn-primary" onClick={onClose}>Show me where to start ✦</button>
+      </div>
     </div>
   );
 }

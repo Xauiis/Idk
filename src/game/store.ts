@@ -18,6 +18,8 @@ import {
   GREAT_WORK,
   BLOOM_SPEED_PER,
   BLOOM_START_COINS,
+  QUESTS,
+  type QuestMetrics,
   speedMultipliers,
   productQualityBonus,
   yieldBonus,
@@ -73,6 +75,7 @@ export interface GameState {
   greatWork: number; // stages of the Magnum Opus completed (0..4)
   opusComplete: boolean;
   blooms: number; // New Bloom prestige count (permanent legacy bonus)
+  questsClaimed: string[]; // completed onboarding quests
 
   stats: { itemsMade: number; ordersFilled: number; discoveries: number };
 
@@ -140,6 +143,7 @@ function freshState() {
     greatWork: 0,
     opusComplete: false,
     blooms: 0,
+    questsClaimed: [] as string[],
     presets: [] as LinePreset[],
     log: [] as LogEntry[],
     logSeq: 1,
@@ -287,8 +291,8 @@ export const useGame = create<GameState>((set, get) => ({
 
   tick: (dt) => {
     const s = get();
-    const next = simulate(s, dt, { spawnOrders: true });
-    set(next);
+    set(simulate(s, dt, { spawnOrders: true }));
+    resolveQuests();
   },
 
   setActive: (skill, recipeId) => {
@@ -570,6 +574,46 @@ export const useGame = create<GameState>((set, get) => ({
   },
 }));
 
+export function questMetrics(s: GameState): QuestMetrics {
+  const did = {} as QuestMetrics['did'];
+  let totalLevel = 0;
+  for (const k of Object.keys(s.skillXp) as SkillId[]) {
+    const lvl = levelForXp(s.skillXp[k]);
+    did[k] = s.skillXp[k] > 0;
+    totalLevel += lvl;
+  }
+  return {
+    did,
+    discovered: s.discovered.length,
+    ordersFilled: s.stats.ordersFilled,
+    biomes: s.biomes.length,
+    perks: s.perks.length,
+    totalLevel,
+    greatWork: s.greatWork,
+  };
+}
+
+/** Auto-complete any newly-satisfied onboarding quests and pay their rewards. */
+function resolveQuests() {
+  const s = useGame.getState();
+  const m = questMetrics(s);
+  const done = QUESTS.filter((q) => !s.questsClaimed.includes(q.id) && q.check(m));
+  if (done.length === 0) return;
+  let coins = s.coins;
+  const inv = { ...s.inventory };
+  let log = s.log;
+  let logSeq = s.logSeq;
+  for (const q of done) {
+    coins += q.reward.coins ?? 0;
+    if (q.reward.insight) inv.insight = (inv.insight ?? 0) + q.reward.insight;
+    const bits = [q.reward.coins ? `+${q.reward.coins}🪙` : '', q.reward.insight ? `+${q.reward.insight}💡` : ''].filter(Boolean).join(' ');
+    const entry: LogEntry = { id: logSeq, text: `✓ ${q.name} — ${bits}`, tone: 'great', at: Math.floor(s.playSeconds) };
+    log = [entry, ...log].slice(0, 60);
+    logSeq += 1;
+  }
+  useGame.setState({ coins, inventory: inv, questsClaimed: [...s.questsClaimed, ...done.map((q) => q.id)], log, logSeq });
+}
+
 function pushLog(s: GameState, text: string, tone: LogEntry['tone']): LogEntry[] {
   const entry: LogEntry = { id: s.logSeq, text, tone, at: Math.floor(s.playSeconds) };
   return [entry, ...s.log].slice(0, LOG_LIMIT);
@@ -598,6 +642,7 @@ export function saveGame() {
     greatWork: s.greatWork,
     opusComplete: s.opusComplete,
     blooms: s.blooms,
+    questsClaimed: s.questsClaimed,
     presets: s.presets,
     stats: s.stats,
     orderSeq: s.orderSeq,

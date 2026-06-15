@@ -295,6 +295,22 @@ button { font-family: inherit; cursor: pointer; }
 .bloom-banner { background: linear-gradient(150deg, rgba(240,168,74,0.16), rgba(192,138,224,0.12)); border: 1px solid var(--border-soft); border-radius: var(--r-sm); padding: 10px 14px; margin-bottom: 14px; font-size: 13.5px; }
 .opus-done { text-align: center; margin-top: 24px; padding: 26px; border-radius: var(--r); background: radial-gradient(600px 240px at 50% -20%, rgba(240,168,74,0.22), transparent 70%), var(--panel-2); border: 1px solid color-mix(in srgb, var(--gold) 40%, var(--border-soft)); }
 .opus-done h2 { font-size: 26px; }
+
+/* ── Onboarding nudge + quests ── */
+.nudge { display: flex; align-items: center; gap: 12px; width: calc(100% - 32px); max-width: 1380px; margin: 12px auto 0; padding: 11px 16px; border-radius: var(--r-sm); border: 1px solid color-mix(in srgb, var(--good) 35%, var(--border-soft)); background: linear-gradient(150deg, rgba(143,199,126,0.14), rgba(143,199,126,0.05)); color: var(--text); text-align: left; font-size: 13.5px; }
+.nudge:hover { border-color: var(--good); }
+.nudge-ic { font-size: 20px; }
+.nudge-go { margin-left: auto; font-weight: 800; color: var(--good); white-space: nowrap; }
+.quest-list { display: flex; flex-direction: column; gap: 8px; }
+.quest { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: var(--r-sm); background: var(--panel-2); border: 1px solid var(--border-soft); opacity: 0.7; }
+.quest.active { opacity: 1; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-deep) inset; }
+.quest.done { opacity: 1; border-color: color-mix(in srgb, var(--good) 40%, var(--border-soft)); }
+.quest-ic { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-size: 17px; background: var(--panel-3); flex: none; }
+.quest.done .quest-ic { color: var(--good); }
+.quest-body { flex: 1; min-width: 0; }
+.quest-name { font-weight: 800; font-size: 14px; }
+.quest-hint { font-size: 12.5px; color: var(--muted); }
+.quest-reward { font-weight: 800; font-size: 12.5px; color: var(--gold); white-space: nowrap; }
 .inv-empty { color: var(--faint); font-size: 13px; padding: 16px 4px; text-align: center; }
 .log { display: flex; flex-direction: column; gap: 7px; max-height: 280px; overflow: auto; }
 .log .entry { font-size: 12.5px; line-height: 1.4; padding: 7px 10px; border-radius: 9px; background: var(--panel-2); border-left: 3px solid var(--border); }
