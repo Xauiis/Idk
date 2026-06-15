@@ -5,3 +5,6 @@ dist/
 .vite/
 coverage/
 *.log
+
+# TS incremental build info
+tsconfig.tsbuildinfo
