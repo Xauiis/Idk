@@ -1,5 +1,5 @@
-import { useGame } from '../game/store';
-import { getItem } from '../game/content';
+import { useGame, maxOrders } from '../game/store';
+import { getItem, seasonAt } from '../game/content';
 import { pkey, quality } from '../game/quality';
 import { fmtTime } from './common';
 
@@ -7,15 +7,26 @@ export function HospitalityPanel() {
   const orders = useGame((s) => s.orders);
   const inventory = useGame((s) => s.inventory);
   const playSeconds = useGame((s) => s.playSeconds);
+  const reputation = useGame((s) => s.reputation);
   const fulfill = useGame((s) => s.fulfillOrder);
   const decline = useGame((s) => s.declineOrder);
 
-  if (orders.length === 0) {
-    return <div className="empty-note">The shop is quiet for now. New customers wander in every little while — keep your shelves stocked. 🫖</div>;
-  }
+  const slots = maxOrders(reputation);
+  const nextSlotAt = slots < 10 ? (Math.floor(reputation / 40) + 1) * 40 : null;
+  const season = seasonAt(playSeconds);
 
   return (
-    <div className="orders">
+    <>
+      <div className="hosp-bar">
+        <span>❤ <b>{reputation}</b> reputation</span>
+        <span>🪧 <b>{orders.length}/{slots}</b> order slots</span>
+        {nextSlotAt != null && <span style={{ color: 'var(--faint)' }}>next slot at {nextSlotAt} rep</span>}
+        <span style={{ marginLeft: 'auto' }} title={season.blurb}>{season.icon} {season.festival} — <b style={{ color: 'var(--gold)' }}>{season.featuredTree}</b> pays extra ✨</span>
+      </div>
+      {orders.length === 0 ? (
+        <div className="empty-note">The shop is quiet for now. New customers wander in every little while — keep your shelves stocked. 🫖</div>
+      ) : (
+      <div className="orders">
       {orders.map((o) => {
         const product = getItem(o.product);
         // count stock at or above the required grade
@@ -69,6 +80,8 @@ export function HospitalityPanel() {
           </div>
         );
       })}
-    </div>
+      </div>
+      )}
+    </>
   );
 }
