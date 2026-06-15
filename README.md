@@ -22,5 +22,35 @@ It's *Little Alchemy's* joyful "aha!" discovery, automated like a factory game a
 ## One-line pitch
 *Melvor Idle's skill grind + Little Alchemy's discovery, running a cozy apothecary where you automate alchemy itself.*
 
+## Play it (Phase 0 + vertical-slice in progress)
+
+```bash
+npm install
+npm run dev      # opens a Vite dev server (default http://localhost:5173)
+```
+
+Other scripts:
+
+```bash
+npm run build    # typecheck + production build to dist/
+npm run preview  # serve the production build
+npm test         # run the engine + UI test suite (Vitest)
+```
+
+### How to play the current build
+1. **Foraging / Gardening** — pick an ingredient and press **Begin**; it gathers on a loop. Each skill can run its own line at once, so the shop hums.
+2. **Separation** — break a gathered ingredient into its five element **motes**.
+3. **Conjunction** — in *Experiment*, drop motes into the crucible and **Combine**. A valid new blend is a **discovery** (e.g. `Ignis + Aqua → Steam Essence`); nonsense becomes harmless **Muddle**. Discovered recipes can then be set to auto-run.
+4. **Remedycraft** — formulate essences into finished products (Sleep Tonic, Warming Salve…).
+5. **Hospitality** — townsfolk wander in with orders; serve them from stock for coins, reputation, and XP.
+
+Everything **ticks while idle** and continues offline — close the tab and the lab keeps simmering (you'll get a welcome-back summary). Progress autosaves to `localStorage`.
+
+## Architecture (Phase 0 foundation)
+- **`src/game/`** — the engine. Generic and content-agnostic: tick simulation, RuneScape-style XP curve (`xp.ts`), the Zustand store with save/load + offline progress (`store.ts`), and selectors. It knows nothing about specific content.
+- **`src/game/content/`** — all data-driven content (elements, items, skills, the combination web, order templates). Adding ingredients/recipes/skills = adding data here.
+- **`src/ui/`** — the React app: skill rail, per-skill panels, the discovery crucible, order book, larder + activity log.
+- **`src/game/*.test.ts`** — engine + UI tests (XP table, production lines, discovery, orders, render smoke).
+
 ## Status
-Pre-production. Design + roadmap complete. First build target is **Phase 0 (engine foundation)** → **Phase 1 (the cozy vertical slice)** in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+Design + roadmap complete. **Phase 0 engine is built and a playable cozy vertical slice runs on top of it** (6 skills, 10 ingredients, the 5-element system, a discoverable combination web, idle + offline progress). Next up per [`docs/ROADMAP.md`](docs/ROADMAP.md): expand the combination web, add the Lore/research and processing skills (Distillation, Calcination), and the second product tree.
