@@ -31,6 +31,7 @@ export function SkillRail({ selected, onSelect }: { selected: string; onSelect: 
               <button
                 key={sk.id}
                 className={`skill-btn${selected === sk.id ? ' active' : ''}`}
+                aria-current={selected === sk.id ? 'page' : undefined}
                 onClick={() => onSelect(sk.id)}
               >
                 <span className="ic" style={{ background: shade(sk.color) }}>{sk.icon}</span>
@@ -61,6 +62,7 @@ export function SkillRail({ selected, onSelect }: { selected: string; onSelect: 
         <button
           key={nav.id}
           className={`skill-btn${selected === nav.id ? ' active' : ''}`}
+          aria-current={selected === nav.id ? 'page' : undefined}
           onClick={() => onSelect(nav.id)}
         >
           <span className="ic" style={{ background: shade(nav.color) }}>{nav.icon}</span>

@@ -62,7 +62,7 @@ export function Sidebar() {
           </div>
         )}
         {hasMuddle && (
-          <button className="btn btn-ghost" style={{ marginTop: 10, width: '100%' }} onClick={compost}>
+          <button className="btn btn-ghost" aria-label="Compost muddle into Terra motes" style={{ marginTop: 10, width: '100%' }} onClick={compost}>
             ♻ Compost Muddle → Terra
           </button>
         )}

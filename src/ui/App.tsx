@@ -172,7 +172,7 @@ function TopBar() {
       <div className="stat" title={`${Math.floor(coins)} coins`}><span>🪙</span> {fmtNum(coins)} <small>coins</small></div>
       {insight > 0 && <div className="stat" title="Insight — spend in the Lore research log"><span>💡</span> {fmtNum(insight)} <small>insight</small></div>}
       <div className="stat" title="Reputation in Mirefen"><span>❤</span> {rep} <small>rep</small></div>
-      <button className="btn btn-ghost" title="Settings" onClick={() => setSettings(true)}>⚙</button>
+      <button className="btn btn-ghost" title="Settings" aria-label="Open settings" onClick={() => setSettings(true)}>⚙</button>
       {settings && <SettingsModal onClose={() => setSettings(false)} hardReset={hardReset} />}
     </header>
   );
