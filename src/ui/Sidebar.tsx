@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useGame } from '../game/store';
-import { getItem, ELEMENTS } from '../game/content';
+import { getItem, ELEMENTS, RECIPES, SKILL_BY_ID } from '../game/content';
 import { baseId, keyGrade, quality } from '../game/quality';
 import { fmtTime } from './common';
 
@@ -91,6 +91,9 @@ function ItemInspect({ itemKey, onClose }: { itemKey: string; onClose: () => voi
   const grade = keyGrade(itemKey);
   const q = grade >= 0 ? quality(grade) : null;
   const comp = def.composition;
+  const id = def.id;
+  const madeBy = RECIPES.filter((r) => r.outputs.some((o) => o.item === id)).slice(0, 4);
+  const usedIn = RECIPES.filter((r) => r.inputs.some((i) => i.item === id)).slice(0, 8);
   return (
     <div className="backdrop" onClick={onClose}>
       <div className="card modal" onClick={(e) => e.stopPropagation()} style={{ textAlign: 'left', width: 'min(360px, 92vw)' }}>
@@ -115,6 +118,18 @@ function ItemInspect({ itemKey, onClose }: { itemKey: string; onClose: () => voi
           </div>
         )}
         {def.value > 0 && <div style={{ fontSize: 13, color: 'var(--muted)' }}>Base value: 🪙 {q ? Math.round(def.value * q.valueMult) : def.value}</div>}
+        {madeBy.length > 0 && (
+          <div style={{ marginTop: 10 }}>
+            <div className="section-label" style={{ margin: '0 0 6px' }}>Made by</div>
+            <div className="io">{madeBy.map((r) => <span key={r.id} className="chip"><span>{SKILL_BY_ID[r.skill].icon}</span>{SKILL_BY_ID[r.skill].name}</span>)}</div>
+          </div>
+        )}
+        {usedIn.length > 0 && (
+          <div style={{ marginTop: 10 }}>
+            <div className="section-label" style={{ margin: '0 0 6px' }}>Used in</div>
+            <div className="io">{usedIn.map((r) => { const o = getItem(r.outputs[0].item); return <span key={r.id} className="chip" title={o.name}>{o.icon}</span>; })}</div>
+          </div>
+        )}
         <button className="btn btn-primary" style={{ width: '100%', marginTop: 14 }} onClick={onClose}>Close</button>
       </div>
     </div>
