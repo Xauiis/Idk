@@ -10,6 +10,7 @@ import { HospitalityPanel } from './HospitalityPanel';
 import { LorePanel } from './LorePanel';
 import { CodexPanel } from './CodexPanel';
 import { ShopPanel } from './ShopPanel';
+import { LabPanel } from './LabPanel';
 import { Sidebar } from './Sidebar';
 import { OfflineModal, type OfflineSummary } from './OfflineModal';
 
@@ -58,7 +59,9 @@ export function App() {
       <div className="layout">
         <SkillRail selected={selected} onSelect={setSelected} />
         <main className="card panel">
-          {selected === 'codex' ? (
+          {selected === 'lab' ? (
+            <LabPanel onSelect={setSelected} />
+          ) : selected === 'codex' ? (
             <CodexPanel />
           ) : selected === 'shop' ? (
             <ShopPanel />

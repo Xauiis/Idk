@@ -50,9 +50,12 @@ export interface GameState {
   orders: Order[];
   nextOrderAt: number;
 
+  presets: LinePreset[];
+
   log: LogEntry[];
   logSeq: number;
   orderSeq: number;
+  presetSeq: number;
 
   stats: { itemsMade: number; ordersFilled: number; discoveries: number };
 
@@ -60,6 +63,10 @@ export interface GameState {
   tick: (dt: number) => void;
   setActive: (skill: SkillId, recipeId: string | null) => void;
   setLineCap: (skill: SkillId, cap: number | null) => void;
+  stopAllLines: () => void;
+  savePreset: (name: string) => void;
+  applyPreset: (id: string) => void;
+  deletePreset: (id: string) => void;
   experiment: (items: Record<string, number>) => ExperimentResult;
   fulfillOrder: (orderId: string) => void;
   buyUpgrade: (id: string) => void;
@@ -74,6 +81,13 @@ export type ExperimentResult =
   | { kind: 'locked'; level: number }
   | { kind: 'muddle' }
   | { kind: 'empty' };
+
+export interface LinePreset {
+  id: string;
+  name: string;
+  active: Record<SkillId, string | null>;
+  caps: Record<SkillId, number | null>;
+}
 
 function emptySkillMap<T>(value: T): Record<SkillId, T> {
   return {
@@ -100,9 +114,11 @@ function freshState() {
     perks: [] as string[],
     orders: [] as Order[],
     nextOrderAt: 6,
+    presets: [] as LinePreset[],
     log: [] as LogEntry[],
     logSeq: 1,
     orderSeq: 1,
+    presetSeq: 1,
     stats: { itemsMade: 0, ordersFilled: 0, discoveries: 0 },
   };
 }
@@ -241,6 +257,48 @@ export const useGame = create<GameState>((set, get) => ({
 
   setLineCap: (skill, cap) => {
     set((s) => ({ lineCap: { ...s.lineCap, [skill]: cap != null && cap > 0 ? Math.floor(cap) : null } }));
+  },
+
+  stopAllLines: () => {
+    set((s) => ({
+      activeRecipe: emptySkillMap<string | null>(null),
+      progress: emptySkillMap(0),
+      log: pushLog(s, 'All lines stopped. The lab falls quiet.', 'info'),
+      logSeq: s.logSeq + 1,
+    }));
+  },
+
+  savePreset: (name) => {
+    const s = get();
+    const preset: LinePreset = {
+      id: `p${s.presetSeq}`,
+      name: name.trim() || `Preset ${s.presetSeq}`,
+      active: { ...s.activeRecipe },
+      caps: { ...s.lineCap },
+    };
+    set({
+      presets: [...s.presets, preset],
+      presetSeq: s.presetSeq + 1,
+      log: pushLog(s, `Saved line preset “${preset.name}”.`, 'good'),
+      logSeq: s.logSeq + 1,
+    });
+  },
+
+  applyPreset: (id) => {
+    const s = get();
+    const preset = s.presets.find((p) => p.id === id);
+    if (!preset) return;
+    set({
+      activeRecipe: { ...emptySkillMap<string | null>(null), ...preset.active },
+      lineCap: { ...emptySkillMap<number | null>(null), ...preset.caps },
+      progress: emptySkillMap(0),
+      log: pushLog(s, `Loaded preset “${preset.name}”. The lab hums to life.`, 'great'),
+      logSeq: s.logSeq + 1,
+    });
+  },
+
+  deletePreset: (id) => {
+    set((s) => ({ presets: s.presets.filter((p) => p.id !== id) }));
   },
 
   experiment: (items) => {
@@ -430,8 +488,10 @@ export function saveGame() {
     perks: s.perks,
     orders: s.orders,
     nextOrderAt: s.nextOrderAt,
+    presets: s.presets,
     stats: s.stats,
     orderSeq: s.orderSeq,
+    presetSeq: s.presetSeq,
     logSeq: s.logSeq,
   };
   try {

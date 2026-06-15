@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useGame } from './store';
 import { levelForXp, xpForLevel } from './xp';
+import { lineInfo, itemFlows } from './analytics';
 
 beforeEach(() => {
   useGame.getState().hardReset();
@@ -182,5 +183,46 @@ describe('phase 3 systems', () => {
     useGame.setState({ inventory: { white_salt: 1, mote_aether: 2 } });
     g.tick(5);
     expect(useGame.getState().inventory.lesser_sigil).toBe(1);
+  });
+});
+
+describe('phase 4 — the lab', () => {
+  it('reports line status: running, stalled, paused', () => {
+    const g = useGame.getState();
+    g.setActive('foraging', 'forage_lavender'); // no inputs → running
+    expect(lineInfo(useGame.getState(), 'foraging').status).toBe('running');
+
+    g.setActive('separation', 'separate_lavender'); // needs lavender (none) → stalled
+    const sep = lineInfo(useGame.getState(), 'separation');
+    expect(sep.status).toBe('stalled');
+    expect(sep.missing).toBe('lavender');
+
+    g.setActive('aethercraft', 'channel_ley');
+    g.setLineCap('aethercraft', 2);
+    useGame.setState({ inventory: { ...useGame.getState().inventory, mote_aether: 5 } });
+    expect(lineInfo(useGame.getState(), 'aethercraft').status).toBe('paused');
+  });
+
+  it('computes net resource flow for running lines', () => {
+    const g = useGame.getState();
+    g.setActive('foraging', 'forage_lavender'); // 3s → +1 lavender per cycle
+    const flow = itemFlows(useGame.getState()).find((f) => f.item === 'lavender');
+    expect(flow).toBeDefined();
+    expect(flow!.net).toBeGreaterThan(0);
+  });
+
+  it('saves and re-applies a line preset, and stops all lines', () => {
+    const g = useGame.getState();
+    g.setActive('foraging', 'forage_lavender');
+    g.setActive('gardening', 'grow_ironroot');
+    g.savePreset('My Setup');
+    g.stopAllLines();
+    expect(useGame.getState().activeRecipe.foraging).toBeNull();
+
+    const id = useGame.getState().presets[0].id;
+    useGame.getState().applyPreset(id);
+    const a = useGame.getState().activeRecipe;
+    expect(a.foraging).toBe('forage_lavender');
+    expect(a.gardening).toBe('grow_ironroot');
   });
 });

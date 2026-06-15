@@ -88,10 +88,12 @@ export interface ToolBonus {
   quality?: { skill: SkillId | 'all'; amount: number };
 }
 
+export type SkillCluster = 'gather' | 'process' | 'conjure' | 'craft' | 'support';
+
 export interface SkillDef {
   id: SkillId;
   name: string;
-  cluster: 'gather' | 'process' | 'product' | 'support';
+  cluster: SkillCluster;
   icon: string;
   color: string;
   blurb: string;

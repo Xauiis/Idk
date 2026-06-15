@@ -37,6 +37,8 @@ npm run preview  # serve the production build
 npm test         # run the engine + UI test suite (Vitest)
 ```
 
+The skill rail groups everything by its premise so the loop reads at a glance: **Gather → Refine → Conjure → Craft → Shop**. The **🏚️ The Lab** tab at the top shows every line at once.
+
 ### How to play the current build
 1. **Foraging / Gardening** — pick an ingredient and press **Begin**; it gathers on a loop. Each skill runs its own line at once, so the shop hums.
 2. **Separation** — break a gathered ingredient into its five element **motes**.
@@ -54,6 +56,7 @@ npm test         # run the engine + UI test suite (Vitest)
 14. **Quality** — every product is crafted at a grade (**Crude → Fine → Pure → Pristine**) set by your skill level, tools, and research. Higher grades sell for more, and fussy customers demand a minimum grade.
 15. **Codex** — your collection log: track which of the ~28 combinations you've discovered.
 16. **Apothecary (shop)** — spend coins on upgrades that speed up your lines.
+17. **The Lab** — the dashboard: see every line's status (running / stalled / paused / idle) and rate, read the **net resource flow per minute** to spot bottlenecks (red = you're spending it faster than you make it), **Stop all**, and **save/apply line presets** to switch your whole factory at once.
 
 Everything **ticks while idle** and continues offline — close the tab and the lab keeps simmering (you'll get a welcome-back summary). Progress autosaves to `localStorage`.
 
@@ -64,13 +67,13 @@ Everything **ticks while idle** and continues offline — close the tab and the 
 - **`src/game/*.test.ts`** — engine + UI tests (XP table, production lines, discovery, orders, render smoke).
 
 ## Status
-Design + roadmap complete. **Phases 0–3 are built and playable:**
-- **14 skills** — Foraging, Gardening, Aethercraft, Separation, Glassblowing, Calcination, Conjunction, Distillation, Transmutation, Inscription, Remedycraft, Feltcraft, Lore, Hospitality
+Design + roadmap complete. **Phases 0–4 are built and playable:**
+- **14 skills**, grouped by premise (Gather → Refine → Conjure → Craft → Shop) — Foraging, Gardening, Aethercraft, Separation, Glassblowing, Calcination, Conjunction, Distillation, Transmutation, Inscription, Remedycraft, Feltcraft, Lore, Hospitality
 - The 5-element system · a ~28-recipe discoverable combination web · distillates · a managed **Aether/Quintessence economy** · materials, tools & sigils
 - **All three product trees live**: Remedies, **Bottled Feelings** (Feltcraft), and the Materials tree (tools + luxury goods)
 - **Deterministic quality system** (Crude → Fine → Pure → Pristine) with min-quality orders and quality-scaled rewards
-- **Programmable lines** — "brew until N, then idle" caps so lines never overproduce or starve your Aether
+- **Programmable lines** ("brew until N, then idle") and **The Lab dashboard** — every line's status & rate, net resource-flow analytics with bottleneck flags, stop-all, and save/apply line presets
 - **Lore research** (Study → Insight → perks) · Codex · shop upgrades · 22 townsfolk orders incl. emotional-need stories · idle + capped offline progress · autosave
-- Verified: typecheck clean, **19 tests passing**, production build OK.
+- Verified: typecheck clean, **22 tests passing**, production build OK.
 
-Next up per [`docs/ROADMAP.md`](docs/ROADMAP.md) **Phase 4**: lab/line-management depth, essence routing, and quality-of-life (bulk actions, presets, analytics).
+Next up per [`docs/ROADMAP.md`](docs/ROADMAP.md) **Phase 5**: world & gathering breadth — Prospecting & Tidewalking, a map of biomes to unlock, deeper Gardening (greenhouse, seasons), and seasonal festivals/events.
