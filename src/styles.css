@@ -262,5 +262,11 @@ button { font-family: inherit; cursor: pointer; }
 .modal p { color: var(--muted); margin: 0 0 16px; }
 .modal .gains { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
 
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
+.stat-tile { background: var(--panel-2); border: 1px solid var(--border-soft); border-radius: var(--r-sm); padding: 12px; text-align: center; }
+.stat-tile b { font-family: 'Fraunces', serif; font-size: 22px; color: var(--gold); display: block; }
+.stat-tile small { color: var(--muted); font-size: 11px; }
+.rail-divider { height: 1px; background: var(--border-soft); margin: 8px 4px; }
+
 .tip { font-size: 12.5px; color: var(--faint); margin-top: 14px; }
 .kbd { background: var(--panel-3); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; font-size: 11px; }

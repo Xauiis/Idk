@@ -1,7 +1,7 @@
 import { useGame } from '../game/store';
 import { recipesForSkill } from '../game/selectors';
 import { levelForXp } from '../game/xp';
-import { SKILL_BY_ID, getItem } from '../game/content';
+import { SKILL_BY_ID, getItem, speedMultipliers } from '../game/content';
 import type { Recipe, SkillId } from '../game/types';
 import { ItemIO } from './common';
 
@@ -12,11 +12,13 @@ export function ProcessPanel({ skill }: { skill: SkillId }) {
   const progress = useGame((s) => s.progress[skill]);
   const discovered = useGame((s) => s.discovered);
   const inventory = useGame((s) => s.inventory);
+  const upgrades = useGame((s) => s.upgrades);
   const setActive = useGame((s) => s.setActive);
 
   const level = levelForXp(xp);
   const def = SKILL_BY_ID[skill];
   const recipes = recipesForSkill(skill);
+  const speed = speedMultipliers(upgrades)[skill] ?? 1;
 
   const canShow = (r: Recipe) => r.unlock !== 'experiment' || discovered.includes(r.id);
   const visible = recipes.filter(canShow);
@@ -26,14 +28,15 @@ export function ProcessPanel({ skill }: { skill: SkillId }) {
       {visible.map((r) => {
         const locked = r.levelReq > level;
         const isActive = active === r.id;
-        const pct = isActive ? Math.min(1, (progress ?? 0) / r.duration) : 0;
+        const effDur = r.duration / speed;
+        const pct = isActive ? Math.min(1, (progress ?? 0) / effDur) : 0;
         const missing = r.inputs.find((i) => (inventory[i.item] ?? 0) < i.qty);
         return (
           <div key={r.id} className={`recipe${locked ? ' locked' : ''}${isActive ? ' active' : ''}`}>
             <div className="top">
               <span className="ic">{def.icon}</span>
               <span className="nm">{r.name.replace(/^(Gather|Separate) /, '')}</span>
-              <span className="dur">{r.duration}s</span>
+              <span className="dur">{effDur.toFixed(1)}s</span>
             </div>
             <ItemIO inputs={r.inputs} outputs={r.outputs} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

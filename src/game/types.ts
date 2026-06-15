@@ -8,6 +8,7 @@ export type SkillId =
   | 'foraging'
   | 'gardening'
   | 'separation'
+  | 'glassblowing'
   | 'conjunction'
   | 'remedycraft'
   | 'hospitality';
@@ -17,6 +18,7 @@ export type ItemKind =
   | 'mote' // raw element essence
   | 'ingredient' // gathered flora/minerals
   | 'essence' // refined / combined intermediate
+  | 'vessel' // glassware that holds finished goods
   | 'product' // a finished, sellable good
   | 'byproduct'; // muddle, compost, etc.
 

@@ -47,19 +47,47 @@ describe('production lines', () => {
 describe('discovery via experiment', () => {
   it('discovers Steam Essence from Ignis + Aqua and consumes motes', () => {
     useGame.setState({ inventory: { mote_ignis: 1, mote_aqua: 1 } });
-    const res = useGame.getState().experiment({ ignis: 1, aqua: 1 });
+    const res = useGame.getState().experiment({ mote_ignis: 1, mote_aqua: 1 });
     expect(res.kind).toBe('discovered');
     const s = useGame.getState();
     expect(s.inventory.steam_essence).toBe(1);
     expect(s.inventory.mote_ignis ?? 0).toBe(0);
-    expect(s.discovered).toContain('conj_steam');
+    expect(s.discovered).toContain('conj_steam_essence');
+  });
+
+  it('discovers a compound from two essences', () => {
+    useGame.setState({ inventory: { steam_essence: 1, ember_essence: 1 }, skillXp: { ...useGame.getState().skillXp, conjunction: 5000 } });
+    const res = useGame.getState().experiment({ steam_essence: 1, ember_essence: 1 });
+    expect(res.kind).toBe('discovered');
+    expect(useGame.getState().inventory.geyser_tincture).toBe(1);
   });
 
   it('produces muddle on an invalid combination', () => {
     useGame.setState({ inventory: { mote_terra: 1 } });
-    const res = useGame.getState().experiment({ terra: 1 });
+    const res = useGame.getState().experiment({ mote_terra: 1 });
     expect(res.kind).toBe('muddle');
     expect(useGame.getState().inventory.muddle).toBe(1);
+  });
+});
+
+describe('glassblowing & upgrades', () => {
+  it('blows a vial from terra + ignis motes', () => {
+    const g = useGame.getState();
+    g.setActive('glassblowing', 'blow_vial'); // 2 terra + 1 ignis → vial, 3s
+    useGame.setState({ inventory: { mote_terra: 2, mote_ignis: 1 } });
+    g.tick(3);
+    expect(useGame.getState().inventory.vial).toBe(1);
+  });
+
+  it('an upgrade speeds up a line so more cycles complete per second', () => {
+    const g = useGame.getState();
+    g.setActive('foraging', 'forage_lavender'); // base 3s
+    useGame.setState({ coins: 1000 });
+    g.buyUpgrade('whittled_basket'); // foraging ×1.2 → eff 2.5s
+    g.tick(3);
+    // With 3s at eff 2.5s, one full cycle completes (1.2 partial) → exactly 1 lavender.
+    expect(useGame.getState().inventory.lavender).toBe(1);
+    expect(useGame.getState().coins).toBe(1000 - 60);
   });
 });
 

@@ -1,9 +1,8 @@
 import { useGame } from '../game/store';
 import { SKILLS, RECIPE_BY_ID } from '../game/content';
 import { levelProgress } from '../game/xp';
-import type { SkillId } from '../game/types';
 
-export function SkillRail({ selected, onSelect }: { selected: SkillId; onSelect: (s: SkillId) => void }) {
+export function SkillRail({ selected, onSelect }: { selected: string; onSelect: (s: string) => void }) {
   const skillXp = useGame((s) => s.skillXp);
   const active = useGame((s) => s.activeRecipe);
 
@@ -32,6 +31,22 @@ export function SkillRail({ selected, onSelect }: { selected: SkillId; onSelect:
           </button>
         );
       })}
+
+      <div className="rail-divider" />
+      <div className="rail-title">Almanac</div>
+      {[
+        { id: 'codex', icon: '📖', name: 'Codex', color: '#c08ae0' },
+        { id: 'shop', icon: '🛒', name: 'Apothecary', color: '#e7c46b' },
+      ].map((nav) => (
+        <button
+          key={nav.id}
+          className={`skill-btn${selected === nav.id ? ' active' : ''}`}
+          onClick={() => onSelect(nav.id)}
+        >
+          <span className="ic" style={{ background: shade(nav.color) }}>{nav.icon}</span>
+          <span className="meta"><span className="nm"><span>{nav.name}</span></span></span>
+        </button>
+      ))}
     </div>
   );
 }

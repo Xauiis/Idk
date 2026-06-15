@@ -38,11 +38,14 @@ npm test         # run the engine + UI test suite (Vitest)
 ```
 
 ### How to play the current build
-1. **Foraging / Gardening** — pick an ingredient and press **Begin**; it gathers on a loop. Each skill can run its own line at once, so the shop hums.
+1. **Foraging / Gardening** — pick an ingredient and press **Begin**; it gathers on a loop. Each skill runs its own line at once, so the shop hums.
 2. **Separation** — break a gathered ingredient into its five element **motes**.
-3. **Conjunction** — in *Experiment*, drop motes into the crucible and **Combine**. A valid new blend is a **discovery** (e.g. `Ignis + Aqua → Steam Essence`); nonsense becomes harmless **Muddle**. Discovered recipes can then be set to auto-run.
-4. **Remedycraft** — formulate essences into finished products (Sleep Tonic, Warming Salve…).
-5. **Hospitality** — townsfolk wander in with orders; serve them from stock for coins, reputation, and XP.
+3. **Glassblowing** — fuse Terra + Ignis motes into **vials** (and later Aether Flasks) to bottle your wares.
+4. **Conjunction** — in *Experiment*, drop motes (and discovered essences) into the crucible and **Combine**. A valid new blend is a **discovery** (e.g. `Ignis + Aqua → Steam Essence`, or `Steam + Ember → Geyser Tincture`); nonsense becomes harmless **Muddle**. Discovered recipes can then be set to auto-run.
+5. **Remedycraft** — formulate essences + a vessel into finished products (Sleep Tonic → … → Lesser Panacea).
+6. **Hospitality** — townsfolk wander in with orders; serve them from stock for coins, reputation, and XP.
+7. **Codex** — your collection log: track which of the ~28 combinations you've discovered.
+8. **Apothecary (shop)** — spend coins on upgrades that speed up your lines.
 
 Everything **ticks while idle** and continues offline — close the tab and the lab keeps simmering (you'll get a welcome-back summary). Progress autosaves to `localStorage`.
 
@@ -53,4 +56,10 @@ Everything **ticks while idle** and continues offline — close the tab and the 
 - **`src/game/*.test.ts`** — engine + UI tests (XP table, production lines, discovery, orders, render smoke).
 
 ## Status
-Design + roadmap complete. **Phase 0 engine is built and a playable cozy vertical slice runs on top of it** (6 skills, 10 ingredients, the 5-element system, a discoverable combination web, idle + offline progress). Next up per [`docs/ROADMAP.md`](docs/ROADMAP.md): expand the combination web, add the Lore/research and processing skills (Distillation, Calcination), and the second product tree.
+Design + roadmap complete. **Phase 0 (engine) and Phase 1 (the cozy vertical slice) are built and playable:**
+- 7 skills (Foraging, Gardening, Separation, Glassblowing, Conjunction, Remedycraft, Hospitality)
+- 15 ingredients · the 5-element system · a ~28-recipe discoverable combination web (dyads → triads → essence compounds) · 2 vessels · 10 products across the remedy/feeling/material trees
+- Codex collection log · shop upgrades · order book with 10 townsfolk · idle + capped offline progress · autosave
+- Tuned for a multi-hour 1→30 progression. Verified: typecheck clean, 11 tests passing, production build OK.
+
+Next up per [`docs/ROADMAP.md`](docs/ROADMAP.md) **Phase 2**: the Lore/research skill, the processing skills (Distillation, Calcination), a Purity/Potency quality system, and deepening the Materials product tree.

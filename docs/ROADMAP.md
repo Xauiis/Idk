@@ -4,6 +4,8 @@
 
 The guiding principle: **prove the cozy core loop is fun before building breadth.** Phase 1 is a complete, polished, ~3-hour vertical slice. Everything after is additive content that slots into the same data-driven engine, mirroring how Melvor/RuneScape ship "a new skill" as a self-contained update.
 
+> **Build status:** ✅ **Phase 0** (engine) and ✅ **Phase 1** (vertical slice) are implemented and playable — 7 skills, 15 ingredients, the 5-element system, a ~28-recipe discoverable combination web, Glassblowing/vials, the Codex, shop upgrades, the order book, and idle + offline progress. **Phase 2 is the next target.**
+
 ---
 
 ## Tech stack

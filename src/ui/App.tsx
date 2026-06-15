@@ -7,13 +7,15 @@ import { SkillRail } from './SkillRail';
 import { ProcessPanel } from './ProcessPanel';
 import { ConjunctionPanel } from './ConjunctionPanel';
 import { HospitalityPanel } from './HospitalityPanel';
+import { CodexPanel } from './CodexPanel';
+import { ShopPanel } from './ShopPanel';
 import { Sidebar } from './Sidebar';
 import { OfflineModal, type OfflineSummary } from './OfflineModal';
 
 const TICK_MS = 100;
 
 export function App() {
-  const [selected, setSelected] = useState<SkillId>('foraging');
+  const [selected, setSelected] = useState<string>('foraging');
   const [offline, setOffline] = useState<OfflineSummary | null>(null);
   const booted = useRef(false);
 
@@ -55,13 +57,21 @@ export function App() {
       <div className="layout">
         <SkillRail selected={selected} onSelect={setSelected} />
         <main className="card panel">
-          <PanelHeader skill={selected} />
-          {selected === 'conjunction' ? (
-            <ConjunctionPanel />
-          ) : selected === 'hospitality' ? (
-            <HospitalityPanel />
+          {selected === 'codex' ? (
+            <CodexPanel />
+          ) : selected === 'shop' ? (
+            <ShopPanel />
           ) : (
-            <ProcessPanel skill={selected} />
+            <>
+              <PanelHeader skill={selected as SkillId} />
+              {selected === 'conjunction' ? (
+                <ConjunctionPanel />
+              ) : selected === 'hospitality' ? (
+                <HospitalityPanel />
+              ) : (
+                <ProcessPanel skill={selected as SkillId} />
+              )}
+            </>
           )}
         </main>
         <Sidebar />

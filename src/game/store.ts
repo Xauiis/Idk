@@ -1,13 +1,14 @@
 import { create } from 'zustand';
-import type { ElementId, LogEntry, Order, SkillId } from './types';
+import type { LogEntry, Order, SkillId } from './types';
 import { levelForXp } from './xp';
 import {
-  ELEMENT_BY_ID,
   ORDER_TEMPLATES,
   RECIPE_BY_ID,
   getItem,
   inputSignature,
   EXPERIMENT_RECIPES,
+  UPGRADES,
+  speedMultipliers,
 } from './content';
 
 const SAVE_KEY = 'quintessence.save.v1';
@@ -19,7 +20,7 @@ const LOG_LIMIT = 60;
 // Production flows along this order each tick, so a gather→separate→combine→craft
 // chain can move one step within a single tick.
 const SKILL_ORDER: SkillId[] = [
-  'foraging', 'gardening', 'separation', 'conjunction', 'remedycraft', 'hospitality',
+  'foraging', 'gardening', 'separation', 'glassblowing', 'conjunction', 'remedycraft', 'hospitality',
 ];
 
 export interface GameState {
@@ -36,6 +37,7 @@ export interface GameState {
   progress: Record<SkillId, number>;
 
   discovered: string[]; // discovered conjunction recipe ids
+  upgrades: string[]; // owned shop upgrade ids
   orders: Order[];
   nextOrderAt: number;
 
@@ -48,8 +50,9 @@ export interface GameState {
   // ── actions ──
   tick: (dt: number) => void;
   setActive: (skill: SkillId, recipeId: string | null) => void;
-  experiment: (motes: Partial<Record<ElementId, number>>) => ExperimentResult;
+  experiment: (items: Record<string, number>) => ExperimentResult;
   fulfillOrder: (orderId: string) => void;
+  buyUpgrade: (id: string) => void;
   compostMuddle: () => void;
   hardReset: () => void;
   applyOffline: () => { seconds: number; gains: Record<string, number>; coins: number } | null;
@@ -63,7 +66,7 @@ export type ExperimentResult =
 
 function emptySkillMap<T>(value: T): Record<SkillId, T> {
   return {
-    foraging: value, gardening: value, separation: value,
+    foraging: value, gardening: value, separation: value, glassblowing: value,
     conjunction: value, remedycraft: value, hospitality: value,
   };
 }
@@ -80,6 +83,7 @@ function freshState() {
     activeRecipe: emptySkillMap<string | null>(null),
     progress: emptySkillMap(0),
     discovered: [] as string[],
+    upgrades: [] as string[],
     orders: [] as Order[],
     nextOrderAt: 6,
     log: [] as LogEntry[],
@@ -106,6 +110,7 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
   const xp = { ...state.skillXp };
   const progress = { ...state.progress };
   let itemsMade = state.stats.itemsMade;
+  const speed = speedMultipliers(state.upgrades);
 
   for (const skill of SKILL_ORDER) {
     const recipeId = state.activeRecipe[skill];
@@ -113,20 +118,21 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
     const recipe = RECIPE_BY_ID[recipeId];
     if (!recipe) continue;
 
+    const effDur = recipe.duration / (speed[skill] ?? 1);
     let acc = (progress[skill] ?? 0) + dt;
     // Cap runaway accumulation when stalled so the line can't bank infinite time.
-    if (acc > recipe.duration * 4) acc = recipe.duration * 4;
+    if (acc > effDur * 4) acc = effDur * 4;
 
-    while (acc >= recipe.duration) {
+    while (acc >= effDur) {
       if (!canAfford(inv, recipe.inputs)) {
-        acc = recipe.duration; // hold ready; completes the instant inputs arrive
+        acc = effDur; // hold ready; completes the instant inputs arrive
         break;
       }
       take(inv, recipe.inputs);
       give(inv, recipe.outputs);
       xp[skill] += recipe.xp;
       itemsMade += recipe.outputs.reduce((s, o) => s + o.qty, 0);
-      acc -= recipe.duration;
+      acc -= effDur;
     }
     progress[skill] = acc;
   }
@@ -187,11 +193,11 @@ export const useGame = create<GameState>((set, get) => ({
     }));
   },
 
-  experiment: (motes) => {
+  experiment: (items) => {
     const s = get();
-    const inputs = (Object.entries(motes) as [ElementId, number][])
+    const inputs = Object.entries(items)
       .filter(([, q]) => q > 0)
-      .map(([el, q]) => ({ item: ELEMENT_BY_ID[el].moteId, qty: q }));
+      .map(([item, q]) => ({ item, qty: q }));
     if (inputs.length === 0) return { kind: 'empty' };
 
     const inv = { ...s.inventory };
@@ -265,6 +271,18 @@ export const useGame = create<GameState>((set, get) => ({
     });
   },
 
+  buyUpgrade: (id) => {
+    const s = get();
+    const up = UPGRADES.find((u) => u.id === id);
+    if (!up || s.upgrades.includes(id) || s.coins < up.cost) return;
+    set({
+      coins: s.coins - up.cost,
+      upgrades: [...s.upgrades, id],
+      log: pushLog(s, `Bought ${up.name}. ${up.effectText}`, 'good'),
+      logSeq: s.logSeq + 1,
+    });
+  },
+
   compostMuddle: () => {
     const s = get();
     const muddle = s.inventory.muddle ?? 0;
@@ -320,6 +338,7 @@ export function saveGame() {
     activeRecipe: s.activeRecipe,
     progress: s.progress,
     discovered: s.discovered,
+    upgrades: s.upgrades,
     orders: s.orders,
     nextOrderAt: s.nextOrderAt,
     stats: s.stats,
