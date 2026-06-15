@@ -348,6 +348,8 @@ button:focus-visible, .skill-btn:focus-visible, .lab-btn:focus-visible, .line-ca
 .modal h2 { margin: 0 0 6px; font-size: 26px; }
 .modal p { color: var(--muted); margin: 0 0 16px; }
 .modal .gains { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
+.setting-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-soft); font-weight: 600; font-size: 14px; }
+.setting-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
 
 .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
 .stat-tile { background: var(--panel-2); border: 1px solid var(--border-soft); border-radius: var(--r-sm); padding: 12px; text-align: center; }

@@ -19,6 +19,7 @@ import { seasonAt, seasonRemaining, moonAt, coziness, QUESTS } from '../game/con
 import { fmtTime } from './common';
 import { Sidebar } from './Sidebar';
 import { Toasts } from './Toasts';
+import { isSoundOn, setSoundOn } from './sound';
 import { fmtNum } from './common';
 import { OfflineModal, type OfflineSummary } from './OfflineModal';
 
@@ -150,6 +151,7 @@ function TopBar() {
   const playSeconds = useGame((s) => s.playSeconds);
   const cozy = useGame((s) => coziness(s.inventory));
   const hardReset = useGame((s) => s.hardReset);
+  const [settings, setSettings] = useState(false);
   const season = seasonAt(playSeconds);
   const moon = moonAt(playSeconds);
   return (
@@ -170,37 +172,42 @@ function TopBar() {
       <div className="stat" title={`${Math.floor(coins)} coins`}><span>🪙</span> {fmtNum(coins)} <small>coins</small></div>
       {insight > 0 && <div className="stat" title="Insight — spend in the Lore research log"><span>💡</span> {fmtNum(insight)} <small>insight</small></div>}
       <div className="stat" title="Reputation in Mirefen"><span>❤</span> {rep} <small>rep</small></div>
-      <button
-        className="btn btn-ghost"
-        title="Copy a portable save code to your clipboard"
-        onClick={() => {
-          const code = exportSave();
-          navigator.clipboard?.writeText(code).then(
-            () => alert('Save code copied to your clipboard. Keep it safe!'),
-            () => window.prompt('Copy your save code:', code),
-          );
-        }}
-      >
-        ⬆ Export
-      </button>
-      <button
-        className="btn btn-ghost"
-        title="Load a save code"
-        onClick={() => {
-          const code = window.prompt('Paste a save code to load it:');
-          if (code) alert(importSave(code) ? 'Save loaded!' : 'That code could not be read.');
-        }}
-      >
-        ⬇ Import
-      </button>
-      <button
-        className="btn btn-ghost"
-        title="Erase your save and start over"
-        onClick={() => { if (confirm('Start a fresh shop? This erases your current save.')) hardReset(); }}
-      >
-        ↺ Reset
-      </button>
+      <button className="btn btn-ghost" title="Settings" onClick={() => setSettings(true)}>⚙</button>
+      {settings && <SettingsModal onClose={() => setSettings(false)} hardReset={hardReset} />}
     </header>
+  );
+}
+
+function SettingsModal({ onClose, hardReset }: { onClose: () => void; hardReset: () => void }) {
+  const [sound, setSound] = useState(isSoundOn());
+  return (
+    <div className="backdrop" onClick={onClose}>
+      <div className="card modal" onClick={(e) => e.stopPropagation()} style={{ textAlign: 'left' }}>
+        <h2 style={{ textAlign: 'center' }}>Settings</h2>
+        <label className="setting-row">
+          <span>🔔 Sound chimes</span>
+          <input type="checkbox" checked={sound} onChange={(e) => { setSound(e.target.checked); setSoundOn(e.target.checked); }} />
+        </label>
+        <div className="setting-row" style={{ gap: 8 }}>
+          <button className="btn" style={{ flex: 1 }} onClick={() => {
+            const code = exportSave();
+            navigator.clipboard?.writeText(code).then(
+              () => alert('Save code copied to your clipboard. Keep it safe!'),
+              () => window.prompt('Copy your save code:', code),
+            );
+          }}>⬆ Export save</button>
+          <button className="btn" style={{ flex: 1 }} onClick={() => {
+            const code = window.prompt('Paste a save code to load it:');
+            if (code) alert(importSave(code) ? 'Save loaded!' : 'That code could not be read.');
+          }}>⬇ Import save</button>
+        </div>
+        <button className="btn btn-ghost" style={{ width: '100%', color: 'var(--danger)' }} onClick={() => {
+          if (confirm('Start a fresh shop? This erases your current save.')) { hardReset(); onClose(); }
+        }}>↺ Reset everything</button>
+        <p className="tip" style={{ textAlign: 'center' }}>Progress autosaves locally and continues while you're away.</p>
+        <button className="btn btn-primary" style={{ width: '100%' }} onClick={onClose}>Done</button>
+      </div>
+    </div>
   );
 }
 

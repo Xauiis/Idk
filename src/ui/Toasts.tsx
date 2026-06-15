@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../game/store';
+import { chime } from './sound';
 
 interface Toast { id: number; text: string }
 
@@ -15,6 +16,7 @@ export function Toasts() {
     const fresh = log.filter((e) => e.tone === 'great' && e.id > seen.current);
     if (fresh.length === 0) return;
     seen.current = Math.max(seen.current, ...log.map((e) => e.id));
+    chime();
     setToasts((cur) => [...cur, ...fresh.map((e) => ({ id: e.id, text: e.text }))].slice(-4));
     const timers = fresh.map((e) =>
       window.setTimeout(() => setToasts((cur) => cur.filter((t) => t.id !== e.id)), 4200),
