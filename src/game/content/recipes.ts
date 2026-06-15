@@ -136,13 +136,56 @@ const CRAFT: CraftDef[] = [
   { out: 'dewdrop_balm', level: 4, xp: 28, dur: 4.4, inputs: [it('mist_essence'), it('clay_essence'), it('vial')] },
   { out: 'morning_draught', level: 6, xp: 38, dur: 4.8, inputs: [it('verdant_essence'), it('spark_essence'), it('vial')] },
   { out: 'bright_eye_drops', level: 8, xp: 42, dur: 5, inputs: [it('lumen_essence'), it('vial')] },
-  { out: 'courage_cordial', level: 10, xp: 48, dur: 5.2, inputs: [it('hearth_essence'), it('ember_essence'), it('vial')] },
   { out: 'clarity_elixir', level: 14, xp: 70, dur: 5.6, inputs: [it('serenity_distillate'), it('flask')] },
-  { out: 'dreamless_philtre', level: 17, xp: 88, dur: 6, inputs: [it('dreamwater'), it('whisper_essence'), it('flask')] },
   { out: 'sunforge_potion', level: 22, xp: 130, dur: 6.6, inputs: [it('sunforge_essence'), it('flask')] },
-  { out: 'tranquil_balm', level: 16, xp: 92, dur: 6, inputs: [it('serene_distillate'), it('flask')] },
   { out: 'dawnlight_tonic', level: 20, xp: 132, dur: 6.5, inputs: [it('radiant_distillate'), it('flask')] },
   { out: 'panacea', level: 26, xp: 190, dur: 7.5, inputs: [it('lullaby_essence'), it('daystar_concentrate'), it('flask')] },
+];
+
+// ── Aethercraft: channel raw Aether, and refine it into Quintessence ──
+const AETHERCRAFT: Recipe[] = [
+  { id: 'channel_ley', name: 'Channel Ley-Bloom', skill: 'aethercraft', levelReq: 1, duration: 5, xp: 14, unlock: 'taught',
+    inputs: [], outputs: [m('aether', 1)], blurb: 'Coax a single mote of Aether from the bloom.' },
+  { id: 'channel_bright', name: 'Channel Bright Bloom', skill: 'aethercraft', levelReq: 8, duration: 5.5, xp: 26, unlock: 'taught',
+    inputs: [], outputs: [m('aether', 2)], blurb: 'A brighter bloom gives up more.' },
+  { id: 'channel_radiant', name: 'Channel Radiant Bloom', skill: 'aethercraft', levelReq: 16, duration: 6, xp: 42, unlock: 'taught',
+    inputs: [], outputs: [m('aether', 3)], blurb: 'The air shivers as you draw it in.' },
+  { id: 'refine_quintessence', name: 'Refine Quintessence', skill: 'aethercraft', levelReq: 6, duration: 6, xp: 30, unlock: 'taught',
+    inputs: [m('aether', 5)], outputs: [it('quintessence')], blurb: 'Condense raw Aether into the fifth element.' },
+];
+
+// ── Inscription: etch sigils (arcane feedstock for enchanted goods) ──
+const INSCRIPTION: Recipe[] = [
+  { id: 'inscribe_lesser', name: 'Lesser Sigil', skill: 'inscription', levelReq: 1, duration: 4.5, xp: 18, unlock: 'taught',
+    inputs: [it('white_salt'), m('aether', 2)], outputs: [it('lesser_sigil')] },
+  { id: 'inscribe_greater', name: 'Greater Sigil', skill: 'inscription', levelReq: 10, duration: 5.5, xp: 40, unlock: 'taught',
+    inputs: [it('living_brass'), it('quintessence')], outputs: [it('greater_sigil')] },
+  { id: 'inscribe_master', name: 'Master Sigil', skill: 'inscription', levelReq: 20, duration: 7, xp: 90, unlock: 'taught',
+    inputs: [it('aether_alloy'), it('quintessence', 2)], outputs: [it('master_sigil')] },
+];
+
+// ── Feltcraft: bottle emotions (the Feelings tree — every recipe needs Aether) ──
+const FELTCRAFT: Recipe[] = [
+  { id: 'felt_calm', name: 'Bottled Calm', skill: 'feltcraft', levelReq: 1, duration: 4.5, xp: 26, unlock: 'taught',
+    inputs: [it('calm_essence'), m('aether', 2), it('vial')], outputs: [it('feeling_calm')] },
+  { id: 'felt_courage', name: 'Bottled Courage', skill: 'feltcraft', levelReq: 4, duration: 5, xp: 34, unlock: 'taught',
+    inputs: [it('hearth_essence'), m('aether', 2), it('vial')], outputs: [it('feeling_courage')] },
+  { id: 'felt_focus', name: 'Bottled Focus', skill: 'feltcraft', levelReq: 8, duration: 5.2, xp: 46, unlock: 'taught',
+    inputs: [it('whisper_essence'), m('aether', 2), it('vial')], outputs: [it('feeling_focus')] },
+  { id: 'craft_courage_cordial', name: 'Courage Cordial', skill: 'feltcraft', levelReq: 10, duration: 5.2, xp: 48, unlock: 'taught',
+    inputs: [it('hearth_essence'), it('ember_essence'), m('aether'), it('vial')], outputs: [it('courage_cordial')] },
+  { id: 'felt_wonder', name: 'Bottled Wonder', skill: 'feltcraft', levelReq: 12, duration: 5.6, xp: 70, unlock: 'taught',
+    inputs: [it('lumen_essence'), it('quintessence'), it('flask')], outputs: [it('feeling_wonder')] },
+  { id: 'felt_nostalgia', name: 'Bottled Nostalgia', skill: 'feltcraft', levelReq: 15, duration: 6, xp: 86, unlock: 'taught',
+    inputs: [it('moonwater_essence'), it('dreamwater'), it('quintessence'), it('flask')], outputs: [it('feeling_nostalgia')] },
+  { id: 'craft_tranquil_balm', name: 'Tranquil Balm', skill: 'feltcraft', levelReq: 16, duration: 6, xp: 92, unlock: 'taught',
+    inputs: [it('serene_distillate'), m('aether', 2), it('flask')], outputs: [it('tranquil_balm')] },
+  { id: 'craft_dreamless_philtre', name: 'Dreamless Philtre', skill: 'feltcraft', levelReq: 17, duration: 6, xp: 96, unlock: 'taught',
+    inputs: [it('dreamwater'), it('whisper_essence'), m('aether', 2), it('flask')], outputs: [it('dreamless_philtre')] },
+  { id: 'felt_serenity', name: 'Bottled Serenity', skill: 'feltcraft', levelReq: 18, duration: 6.5, xp: 120, unlock: 'taught',
+    inputs: [it('serene_distillate'), it('quintessence'), it('lesser_sigil'), it('flask')], outputs: [it('feeling_serenity')] },
+  { id: 'felt_euphoria', name: 'Bottled Euphoria', skill: 'feltcraft', levelReq: 24, duration: 7.5, xp: 190, unlock: 'taught',
+    inputs: [it('lullaby_essence'), it('quintessence'), it('greater_sigil'), it('flask')], outputs: [it('feeling_euphoria')] },
 ];
 
 const REMEDYCRAFT: Recipe[] = CRAFT.map((c) => ({
@@ -227,8 +270,8 @@ const TRANSMUTATION: Recipe[] = [
 ];
 
 export const RECIPES: Recipe[] = [
-  ...GATHERING, ...SEPARATION, ...GLASSBLOWING, ...CALCINATION, ...CONJUNCTION,
-  ...DISTILLATION, ...TRANSMUTATION, ...REMEDYCRAFT, ...LORE,
+  ...GATHERING, ...AETHERCRAFT, ...SEPARATION, ...GLASSBLOWING, ...CALCINATION, ...CONJUNCTION,
+  ...DISTILLATION, ...TRANSMUTATION, ...INSCRIPTION, ...REMEDYCRAFT, ...FELTCRAFT, ...LORE,
 ];
 
 export const RECIPE_BY_ID: Record<string, Recipe> = Object.fromEntries(RECIPES.map((r) => [r.id, r]));
@@ -242,6 +285,6 @@ export function inputSignature(inputs: ItemStack[]): string {
 
 /** Skills that can run a production line (everything except Hospitality). */
 export const LINE_SKILLS: SkillId[] = [
-  'foraging', 'gardening', 'separation', 'glassblowing', 'calcination',
-  'conjunction', 'distillation', 'transmutation', 'remedycraft', 'lore',
+  'foraging', 'gardening', 'aethercraft', 'separation', 'glassblowing', 'calcination',
+  'conjunction', 'distillation', 'transmutation', 'inscription', 'remedycraft', 'feltcraft', 'lore',
 ];

@@ -4,7 +4,7 @@
 
 The guiding principle: **prove the cozy core loop is fun before building breadth.** Phase 1 is a complete, polished, ~3-hour vertical slice. Everything after is additive content that slots into the same data-driven engine, mirroring how Melvor/RuneScape ship "a new skill" as a self-contained update.
 
-> **Build status:** ✅ **Phase 0** (engine), ✅ **Phase 1** (vertical slice), and ✅ **Phase 2** (depth & second tree) are implemented and playable — **11 skills**, the 5-element system, a ~28-recipe combination web, the **deterministic quality system** (Crude→Pristine) with min-quality orders, the **Lore research log** (Study→Insight→perks), Calcination/Distillation/Transmutation, the full **Materials tree** (tools + luxury goods), the Codex, shop upgrades, and idle + offline progress. **Phase 3 is the next target.**
+> **Build status:** ✅ **Phase 0** (engine), ✅ **Phase 1** (vertical slice), ✅ **Phase 2** (depth & second tree), and ✅ **Phase 3** (feelings & arcane) are implemented and playable — **14 skills**, the 5-element system, a ~28-recipe combination web, the deterministic quality system (Crude→Pristine) with min-quality orders, the Lore research log, all three product trees (Remedies, **Bottled Feelings** via Feltcraft, Materials), a managed **Aether/Quintessence economy** (Aethercraft), **Inscription** with programmable "brew until N" line caps, the Codex, shop upgrades, and idle + offline progress. **Phase 4 is the next target.**
 
 ---
 

@@ -47,10 +47,13 @@ npm test         # run the engine + UI test suite (Vitest)
 7. **Calcination** — burn ingredients down to **salts & ash** (the Materials feedstock).
 8. **Distillation** — purify essences into potent **distillates** for the finest remedies.
 9. **Transmutation** — forge salts + essences into **materials → tools** (held items that grant passive bonuses) and **luxury goods** to sell.
-10. **Lore** — run **Study** actions for **Insight**, then spend it in the **Research Log** on permanent perks (+quality, +speed, recipe reveals, Codex hints).
-11. **Quality** — every product is crafted at a grade (**Crude → Fine → Pure → Pristine**) set by your skill level, tools, and research. Higher grades sell for more, and fussy customers demand a minimum grade.
-12. **Codex** — your collection log: track which of the ~28 combinations you've discovered.
-13. **Apothecary (shop)** — spend coins on upgrades that speed up your lines.
+10. **Aethercraft** — **channel raw Aether** from the ley-blooms over time, and refine it into **Quintessence**. Aether is the scarce thread that the arcane crafts all pull on.
+11. **Inscription** — etch **Sigils** (arcane feedstock), and **program your lines**: set a line to *brew until N, then idle* so it never overproduces or hogs your Aether.
+12. **Feltcraft** — distill and bottle **emotions** (Calm, Courage, Focus, Wonder, Nostalgia, Serenity, Euphoria) — the Bottled Feelings tree. Each one drinks Aether, and townsfolk arrive with little emotional-need stories.
+13. **Lore** — run **Study** actions for **Insight**, then spend it in the **Research Log** on permanent perks (+quality, +speed, recipe reveals, Codex hints).
+14. **Quality** — every product is crafted at a grade (**Crude → Fine → Pure → Pristine**) set by your skill level, tools, and research. Higher grades sell for more, and fussy customers demand a minimum grade.
+15. **Codex** — your collection log: track which of the ~28 combinations you've discovered.
+16. **Apothecary (shop)** — spend coins on upgrades that speed up your lines.
 
 Everything **ticks while idle** and continues offline — close the tab and the lab keeps simmering (you'll get a welcome-back summary). Progress autosaves to `localStorage`.
 
@@ -61,12 +64,13 @@ Everything **ticks while idle** and continues offline — close the tab and the 
 - **`src/game/*.test.ts`** — engine + UI tests (XP table, production lines, discovery, orders, render smoke).
 
 ## Status
-Design + roadmap complete. **Phases 0–2 are built and playable:**
-- **11 skills** — Foraging, Gardening, Separation, Glassblowing, Calcination, Conjunction, Distillation, Transmutation, Remedycraft, Lore, Hospitality
-- The 5-element system · a ~28-recipe discoverable combination web · 4 distillates · 9 materials · 3 tools · 6 research perks
-- **Two+ product trees**: remedies, bottled feelings, and a full **Materials tree** (tools + luxury goods)
-- **Deterministic quality system** (Crude → Fine → Pure → Pristine) on every product, with min-quality orders and quality-scaled rewards
-- **Lore research**: Study → Insight → permanent perks · Codex collection log · shop upgrades · 16 townsfolk orders · idle + capped offline progress · autosave
-- Verified: typecheck clean, **15 tests passing**, production build OK.
+Design + roadmap complete. **Phases 0–3 are built and playable:**
+- **14 skills** — Foraging, Gardening, Aethercraft, Separation, Glassblowing, Calcination, Conjunction, Distillation, Transmutation, Inscription, Remedycraft, Feltcraft, Lore, Hospitality
+- The 5-element system · a ~28-recipe discoverable combination web · distillates · a managed **Aether/Quintessence economy** · materials, tools & sigils
+- **All three product trees live**: Remedies, **Bottled Feelings** (Feltcraft), and the Materials tree (tools + luxury goods)
+- **Deterministic quality system** (Crude → Fine → Pure → Pristine) with min-quality orders and quality-scaled rewards
+- **Programmable lines** — "brew until N, then idle" caps so lines never overproduce or starve your Aether
+- **Lore research** (Study → Insight → perks) · Codex · shop upgrades · 22 townsfolk orders incl. emotional-need stories · idle + capped offline progress · autosave
+- Verified: typecheck clean, **19 tests passing**, production build OK.
 
-Next up per [`docs/ROADMAP.md`](docs/ROADMAP.md) **Phase 3**: Bottled-Feelings depth & narrative orders, the Aether economy, and Inscription (programmable lines).
+Next up per [`docs/ROADMAP.md`](docs/ROADMAP.md) **Phase 4**: lab/line-management depth, essence routing, and quality-of-life (bulk actions, presets, analytics).

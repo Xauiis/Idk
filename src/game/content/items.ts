@@ -78,6 +78,18 @@ const DISTILLATES: ItemDef[] = [
   { id: 'solar_distillate', name: 'Solar Distillate', kind: 'essence', icon: '🟡', color: '#f0b045', tier: 6, value: 80, blurb: 'You can feel it warming the vial.' },
 ];
 
+// ── Quintessence (refined Aether; the arcane bottleneck resource) ──
+const ARCANE: ItemDef[] = [
+  { id: 'quintessence', name: 'Quintessence', kind: 'essence', icon: '✦', color: '#c89bee', tier: 5, value: 50, blurb: 'Distilled Aether — the fifth element, made manifest.' },
+];
+
+// ── Sigils (Inscription output; arcane feedstock for enchanted goods) ──
+const SIGILS: ItemDef[] = [
+  { id: 'lesser_sigil', name: 'Lesser Sigil', kind: 'material', icon: '⟡', color: '#b08fd0', tier: 3, value: 22, blurb: 'A glyph that holds a little intent.' },
+  { id: 'greater_sigil', name: 'Greater Sigil', kind: 'material', icon: '✷', color: '#c08ae0', tier: 4, value: 46, blurb: 'It tugs gently at the air around it.' },
+  { id: 'master_sigil', name: 'Master Sigil', kind: 'material', icon: '❖', color: '#d6a8f0', tier: 6, value: 100, blurb: 'A whole sentence of magic in one mark.' },
+];
+
 // ── Materials (Calcination & Transmutation feedstock) ──
 const MATERIALS: ItemDef[] = [
   { id: 'iron_salt', name: 'Iron Salt', kind: 'material', icon: '🧂', color: '#b98a5a', tier: 1, value: 3, blurb: 'Rusty crystals from calcined root.' },
@@ -124,6 +136,14 @@ const PRODUCTS: ItemDef[] = [
   // distillate-grade remedies (Phase 2)
   { id: 'tranquil_balm', name: 'Tranquil Balm', kind: 'product', tree: 'feeling', icon: '🪷', color: '#a8c2ec', tier: 4, value: 150, blurb: 'Stillness you can wear all day.' },
   { id: 'dawnlight_tonic', name: 'Dawnlight Tonic', kind: 'product', tree: 'remedy', icon: '🌞', color: '#f0d066', tier: 5, value: 220, blurb: 'Bottled sunrise for the dreariest dark.' },
+  // Bottled Feelings (Phase 3 — Feltcraft; each needs Aether)
+  { id: 'feeling_calm', name: 'Bottled Calm', kind: 'product', tree: 'feeling', icon: '🕊️', color: '#9bb7e0', tier: 1, value: 44, blurb: 'A slow exhale for a racing heart.' },
+  { id: 'feeling_courage', name: 'Bottled Courage', kind: 'product', tree: 'feeling', icon: '🔥', color: '#e08a52', tier: 2, value: 60, blurb: 'For the moment before the leap.' },
+  { id: 'feeling_focus', name: 'Bottled Focus', kind: 'product', tree: 'feeling', icon: '🎯', color: '#cdbce6', tier: 3, value: 84, blurb: 'The world narrows to the work at hand.' },
+  { id: 'feeling_wonder', name: 'Bottled Wonder', kind: 'product', tree: 'feeling', icon: '🌠', color: '#dcb8f0', tier: 4, value: 130, blurb: 'The sky, the first time you really saw it.' },
+  { id: 'feeling_nostalgia', name: 'Bottled Nostalgia', kind: 'product', tree: 'feeling', icon: '📷', color: '#bca0d0', tier: 4, value: 150, blurb: 'A warm afternoon that never quite happened.' },
+  { id: 'feeling_serenity', name: 'Bottled Serenity', kind: 'product', tree: 'feeling', icon: '🪷', color: '#a8c2ec', tier: 5, value: 210, blurb: 'Peace so deep it hums.' },
+  { id: 'feeling_euphoria', name: 'Bottled Euphoria', kind: 'product', tree: 'feeling', icon: '🎆', color: '#f0a8d8', tier: 6, value: 320, blurb: 'Pure delight, corked before it escapes.' },
   // Materials-tree luxury goods (Transmutation; sellable, carry quality)
   { id: 'brass_charm', name: 'Brass Charm', kind: 'product', tree: 'material', icon: '🔔', color: '#cda14a', tier: 2, value: 90, blurb: 'Wards off a little bad luck.' },
   { id: 'dreamsilk_sachet', name: 'Dreamsilk Sachet', kind: 'product', tree: 'material', icon: '🎀', color: '#c9b6e0', tier: 3, value: 130, blurb: 'Tucked under a pillow for sweet dreams.' },
@@ -137,8 +157,8 @@ const BYPRODUCTS: ItemDef[] = [
 ];
 
 export const ITEMS: ItemDef[] = [
-  ...MOTES, ...INGREDIENTS, ...ESSENCES, ...DISTILLATES, ...MATERIALS, ...TOOLS,
-  ...VESSELS, ...TOKENS, ...PRODUCTS, ...BYPRODUCTS,
+  ...MOTES, ...INGREDIENTS, ...ESSENCES, ...DISTILLATES, ...ARCANE, ...SIGILS,
+  ...MATERIALS, ...TOOLS, ...VESSELS, ...TOKENS, ...PRODUCTS, ...BYPRODUCTS,
 ];
 
 /** Tool bonuses, keyed by tool item id. */

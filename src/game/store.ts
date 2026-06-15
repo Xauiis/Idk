@@ -25,8 +25,9 @@ const LOG_LIMIT = 60;
 // Production flows along this order each tick, so a gather→separate→combine→craft
 // chain can move one step within a single tick.
 const SKILL_ORDER: SkillId[] = [
-  'foraging', 'gardening', 'separation', 'glassblowing', 'calcination',
-  'conjunction', 'distillation', 'transmutation', 'remedycraft', 'lore', 'hospitality',
+  'foraging', 'gardening', 'aethercraft', 'separation', 'glassblowing', 'calcination',
+  'conjunction', 'distillation', 'transmutation', 'inscription',
+  'remedycraft', 'feltcraft', 'lore', 'hospitality',
 ];
 
 export interface GameState {
@@ -41,6 +42,7 @@ export interface GameState {
 
   activeRecipe: Record<SkillId, string | null>;
   progress: Record<SkillId, number>;
+  lineCap: Record<SkillId, number | null>; // pause a line once it holds this many of its output
 
   discovered: string[]; // discovered conjunction recipe ids
   upgrades: string[]; // owned shop upgrade ids
@@ -57,6 +59,7 @@ export interface GameState {
   // ── actions ──
   tick: (dt: number) => void;
   setActive: (skill: SkillId, recipeId: string | null) => void;
+  setLineCap: (skill: SkillId, cap: number | null) => void;
   experiment: (items: Record<string, number>) => ExperimentResult;
   fulfillOrder: (orderId: string) => void;
   buyUpgrade: (id: string) => void;
@@ -74,8 +77,9 @@ export type ExperimentResult =
 
 function emptySkillMap<T>(value: T): Record<SkillId, T> {
   return {
-    foraging: value, gardening: value, separation: value, glassblowing: value, calcination: value,
-    conjunction: value, distillation: value, transmutation: value, remedycraft: value, lore: value, hospitality: value,
+    foraging: value, gardening: value, aethercraft: value, separation: value, glassblowing: value,
+    calcination: value, conjunction: value, distillation: value, transmutation: value, inscription: value,
+    remedycraft: value, feltcraft: value, lore: value, hospitality: value,
   };
 }
 
@@ -90,6 +94,7 @@ function freshState() {
     skillXp: emptySkillMap(0),
     activeRecipe: emptySkillMap<string | null>(null),
     progress: emptySkillMap(0),
+    lineCap: emptySkillMap<number | null>(null),
     discovered: [] as string[],
     upgrades: [] as string[],
     perks: [] as string[],
@@ -112,6 +117,13 @@ function take(inv: Record<string, number>, inputs: { item: string; qty: number }
 function give(inv: Record<string, number>, outputs: { item: string; qty: number }[]) {
   for (const o of outputs) inv[o.item] = (inv[o.item] ?? 0) + o.qty;
 }
+/** Total held of an item across all quality grades (products) or its flat key. */
+function countBase(inv: Record<string, number>, itemId: string): number {
+  let n = inv[itemId] ?? 0;
+  const prefix = `${itemId}#`;
+  for (const key in inv) if (key.startsWith(prefix)) n += inv[key];
+  return n;
+}
 
 /** Advance every running line through as many whole cycles as `dt` allows. */
 function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) {
@@ -132,11 +144,17 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
     const qBonus = producesProduct ? productQualityBonus(skill, state.perks, inv) : 0;
     const gather = (skill === 'foraging' || skill === 'gardening') ? yieldBonus(skill, state.perks) : 0;
     const insightMul = skill === 'lore' ? insightMultiplier(state.perks) : 1;
+    const cap = state.lineCap[skill];
+    const primary = recipe.outputs[0]?.item;
 
     let acc = (progress[skill] ?? 0) + dt;
     if (acc > effDur * 4) acc = effDur * 4; // cap banked time when stalled
 
     while (acc >= effDur) {
+      if (cap != null && primary && countBase(inv, primary) >= cap) {
+        acc = effDur; // programmed pause: enough on the shelf
+        break;
+      }
       if (!canAfford(inv, recipe.inputs)) {
         acc = effDur; // hold ready; completes the instant inputs arrive
         break;
@@ -219,6 +237,10 @@ export const useGame = create<GameState>((set, get) => ({
       activeRecipe: { ...s.activeRecipe, [skill]: recipeId },
       progress: { ...s.progress, [skill]: 0 },
     }));
+  },
+
+  setLineCap: (skill, cap) => {
+    set((s) => ({ lineCap: { ...s.lineCap, [skill]: cap != null && cap > 0 ? Math.floor(cap) : null } }));
   },
 
   experiment: (items) => {
@@ -402,6 +424,7 @@ export function saveGame() {
     skillXp: s.skillXp,
     activeRecipe: s.activeRecipe,
     progress: s.progress,
+    lineCap: s.lineCap,
     discovered: s.discovered,
     upgrades: s.upgrades,
     perks: s.perks,
@@ -432,6 +455,7 @@ export function loadGame(): boolean {
       skillXp: { ...emptySkillMap(0), ...data.skillXp },
       activeRecipe: { ...emptySkillMap<string | null>(null), ...data.activeRecipe },
       progress: { ...emptySkillMap(0), ...data.progress },
+      lineCap: { ...emptySkillMap<number | null>(null), ...data.lineCap },
       log: [],
     });
     return true;

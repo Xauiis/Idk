@@ -7,13 +7,16 @@ export type ElementId = 'terra' | 'aqua' | 'ignis' | 'aer' | 'aether';
 export type SkillId =
   | 'foraging'
   | 'gardening'
+  | 'aethercraft'
   | 'separation'
   | 'glassblowing'
   | 'calcination'
   | 'conjunction'
   | 'distillation'
   | 'transmutation'
+  | 'inscription'
   | 'remedycraft'
+  | 'feltcraft'
   | 'lore'
   | 'hospitality';
 

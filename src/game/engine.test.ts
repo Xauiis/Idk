@@ -149,3 +149,38 @@ describe('phase 2 systems', () => {
     expect(useGame.getState().inventory.living_brass).toBe(1);
   });
 });
+
+describe('phase 3 systems', () => {
+  it('Aethercraft channels raw Aether from nothing over time', () => {
+    const g = useGame.getState();
+    g.setActive('aethercraft', 'channel_ley'); // → 1 aether mote, 5s
+    g.tick(5);
+    expect(useGame.getState().inventory.mote_aether).toBe(1);
+  });
+
+  it('Feltcraft bottles a feeling, consuming Aether (the bottleneck)', () => {
+    const g = useGame.getState();
+    g.setActive('feltcraft', 'felt_calm'); // calm_essence + 2 aether + vial → feeling_calm
+    useGame.setState({ inventory: { calm_essence: 1, mote_aether: 2, vial: 1 } });
+    g.tick(5);
+    const inv = useGame.getState().inventory;
+    expect(inv['feeling_calm#0']).toBe(1); // product carries a quality grade
+    expect(inv.mote_aether ?? 0).toBe(0); // Aether was spent
+  });
+
+  it('a line cap pauses production once the shelf is full', () => {
+    const g = useGame.getState();
+    g.setActive('aethercraft', 'channel_ley');
+    g.setLineCap('aethercraft', 2);
+    g.tick(30); // would make ~6 without a cap
+    expect(useGame.getState().inventory.mote_aether).toBe(2);
+  });
+
+  it('Inscription etches a sigil from salt + Aether', () => {
+    const g = useGame.getState();
+    g.setActive('inscription', 'inscribe_lesser'); // white_salt + 2 aether → lesser_sigil
+    useGame.setState({ inventory: { white_salt: 1, mote_aether: 2 } });
+    g.tick(5);
+    expect(useGame.getState().inventory.lesser_sigil).toBe(1);
+  });
+});

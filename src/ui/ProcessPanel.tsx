@@ -14,7 +14,16 @@ export function ProcessPanel({ skill }: { skill: SkillId }) {
   const perks = useGame((s) => s.perks);
   const inventory = useGame((s) => s.inventory);
   const upgrades = useGame((s) => s.upgrades);
+  const lineCap = useGame((s) => s.lineCap[skill]);
   const setActive = useGame((s) => s.setActive);
+  const setLineCap = useGame((s) => s.setLineCap);
+
+  const heldOf = (id: string) => {
+    let n = inventory[id] ?? 0;
+    const prefix = `${id}#`;
+    for (const k in inventory) if (k.startsWith(prefix)) n += inventory[k];
+    return n;
+  };
 
   const level = levelForXp(xp);
   const def = SKILL_BY_ID[skill];
@@ -48,9 +57,28 @@ export function ProcessPanel({ skill }: { skill: SkillId }) {
               {locked && <span className="req">needs Lv {r.levelReq}</span>}
               {!locked && isActive && missing && <span className="req">out of {getItem(missing.item).name}</span>}
             </div>
-            {isActive && (
-              <div className="bar"><span style={{ width: `${pct * 100}%` }} /></div>
-            )}
+            {isActive && (() => {
+              const primary = r.outputs[0]?.item;
+              const paused = lineCap != null && primary != null && heldOf(primary) >= lineCap;
+              return (
+                <>
+                  <div className="bar"><span style={{ width: `${pct * 100}%` }} /></div>
+                  <div className="cap-row">
+                    <span className="cap-label">🪶 brew until</span>
+                    <input
+                      className="cap-input"
+                      type="number"
+                      min={0}
+                      placeholder="∞"
+                      value={lineCap ?? ''}
+                      onChange={(e) => setLineCap(skill, e.target.value === '' ? null : Number(e.target.value))}
+                    />
+                    <span className="cap-label">then idle</span>
+                    {paused && <span className="cap-paused">paused ✓</span>}
+                  </div>
+                </>
+              );
+            })()}
             {!locked && (
               <button
                 className={`sel${isActive ? ' stop' : ''}`}

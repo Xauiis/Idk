@@ -44,4 +44,17 @@ export const ORDER_TEMPLATES: OrderTemplate[] = [
     story: 'I display only the Pure. A flawed ornament would shame my cabinet.' },
   { customer: 'The Archcountess', customerIcon: '👸', product: 'aether_signet', qtyRange: [1, 1], minQuality: 3,
     story: 'A signet for my heir. It must be Pristine — utterly perfect.' },
+  // Phase 3: Bottled Feelings — little emotional-need stories
+  { customer: 'Trembling Edda', customerIcon: '🙍‍♀️', product: 'feeling_calm', qtyRange: [1, 3],
+    story: 'My hands won’t stop shaking before market day. Could you bottle a little calm for me?' },
+  { customer: 'Young Rook', customerIcon: '🧑', product: 'feeling_courage', qtyRange: [1, 2],
+    story: 'I mean to ask Wyn to dance at the fair. I… I need to be braver than I am.' },
+  { customer: 'Apprentice Fen', customerIcon: '🧑‍🔧', product: 'feeling_focus', qtyRange: [1, 2], minQuality: 1,
+    story: 'My mind wanders at the bench all day. Something to help me concentrate?' },
+  { customer: 'Widow Ash', customerIcon: '🧓', product: 'feeling_nostalgia', qtyRange: [1, 1], minQuality: 1,
+    story: 'I miss my late husband terribly. Just one evening of the old days… is that so much?' },
+  { customer: 'Stargazer Io', customerIcon: '🔭', product: 'feeling_wonder', qtyRange: [1, 1], minQuality: 2,
+    story: 'I have grown numb to the night sky. Help me feel the awe again — and make it Pure.' },
+  { customer: 'Festival Steward', customerIcon: '🎭', product: 'feeling_euphoria', qtyRange: [1, 1], minQuality: 2,
+    story: 'The Midsummer crowd deserves a moment of pure joy. Only your finest will do.' },
 ];
