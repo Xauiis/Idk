@@ -1,11 +1,14 @@
 import { useGame } from '../game/store';
 import { getItem } from '../game/content';
 import { pkey, quality } from '../game/quality';
+import { fmtTime } from './common';
 
 export function HospitalityPanel() {
   const orders = useGame((s) => s.orders);
   const inventory = useGame((s) => s.inventory);
+  const playSeconds = useGame((s) => s.playSeconds);
   const fulfill = useGame((s) => s.fulfillOrder);
+  const decline = useGame((s) => s.declineOrder);
 
   if (orders.length === 0) {
     return <div className="empty-note">The shop is quiet for now. New customers wander in every little while — keep your shelves stocked. 🫖</div>;
@@ -29,6 +32,11 @@ export function HospitalityPanel() {
                 <b>{o.customer}</b>
                 <div style={{ fontSize: 11, color: 'var(--faint)' }}>wants {o.qty}× {product.name}</div>
               </div>
+              <button
+                className="order-decline"
+                title="Send this customer away"
+                onClick={() => decline(o.id)}
+              >✕</button>
             </div>
             <div className="story">“{o.story}”</div>
             <div className="want">
@@ -46,6 +54,9 @@ export function HospitalityPanel() {
               <span>🪙 <b>~{o.coins}</b></span>
               <span>❤ <b>{o.reputation}</b></span>
               <span>🫖 <b>{o.hospitalityXp}</b> xp</span>
+              <span style={{ marginLeft: 'auto', color: 'var(--faint)' }} title="The customer wanders off when this runs out (no penalty)">
+                ⏳ {fmtTime(Math.max(0, o.expiresAt - playSeconds))}
+              </span>
             </div>
             <button className="btn btn-good" disabled={!ready} onClick={() => fulfill(o.id)}>
               {ready ? 'Serve customer' : o.minQuality > 0 ? `Need ${o.qty}× ${minQ.name}+` : 'Not enough stock'}

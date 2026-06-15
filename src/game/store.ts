@@ -69,6 +69,7 @@ export interface GameState {
   deletePreset: (id: string) => void;
   experiment: (items: Record<string, number>) => ExperimentResult;
   fulfillOrder: (orderId: string) => void;
+  declineOrder: (orderId: string) => void;
   buyUpgrade: (id: string) => void;
   buyPerk: (id: string) => void;
   compostMuddle: () => void;
@@ -198,11 +199,11 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
     progress[skill] = acc;
   }
 
-  // Order generation
-  let orders = state.orders;
+  // Order generation & expiry
+  const playSeconds = state.playSeconds + dt;
+  let orders = state.orders.filter((o) => o.expiresAt > playSeconds); // customers wander off (no penalty)
   let nextOrderAt = state.nextOrderAt;
   let orderSeq = state.orderSeq;
-  const playSeconds = state.playSeconds + dt;
   if (opts.spawnOrders && playSeconds >= nextOrderAt && orders.length < MAX_ORDERS) {
     const tpl = ORDER_TEMPLATES[Math.floor(Math.random() * ORDER_TEMPLATES.length)];
     const qty = tpl.qtyRange[0] + Math.floor(Math.random() * (tpl.qtyRange[1] - tpl.qtyRange[0] + 1));
@@ -221,10 +222,11 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
         hospitalityXp: Math.round(product.value * qty * 0.6),
         story: tpl.story,
         createdAt: Math.floor(playSeconds),
+        expiresAt: playSeconds + 180 + Math.random() * 180, // 3–6 cozy minutes
       },
     ];
     orderSeq += 1;
-    nextOrderAt = playSeconds + 20 + Math.random() * 25;
+    nextOrderAt = playSeconds + 18 + Math.random() * 22;
   }
 
   return {
@@ -398,6 +400,10 @@ export const useGame = create<GameState>((set, get) => ({
       log: pushLog(s, `${order.customer} is delighted! +${coins}🪙 +${order.reputation}❤`, 'great'),
       logSeq: s.logSeq + 1,
     });
+  },
+
+  declineOrder: (orderId) => {
+    set((s) => ({ orders: s.orders.filter((o) => o.id !== orderId) }));
   },
 
   buyUpgrade: (id) => {

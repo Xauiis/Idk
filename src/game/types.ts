@@ -111,6 +111,7 @@ export interface Order {
   hospitalityXp: number;
   story: string;
   createdAt: number; // tick timestamp (seconds of play)
+  expiresAt: number; // soft deadline — the customer wanders off, no penalty
 }
 
 /** A single transient notification surfaced in the activity log. */

@@ -70,7 +70,7 @@ const SEPARATION: Recipe[] = [
 // ── Glassblowing: shape motes into vessels that hold finished goods ──
 const GLASSBLOWING: Recipe[] = [
   { id: 'blow_vial', name: 'Glass Vial', skill: 'glassblowing', levelReq: 1, duration: 3, xp: 9, unlock: 'taught',
-    inputs: [{ item: 'mote_terra', qty: 2 }, { item: 'mote_ignis', qty: 1 }], outputs: [{ item: 'vial', qty: 1 }] },
+    inputs: [{ item: 'mote_terra', qty: 2 }, { item: 'mote_ignis', qty: 1 }], outputs: [{ item: 'vial', qty: 2 }] },
   { id: 'blow_flask', name: 'Aether Flask', skill: 'glassblowing', levelReq: 12, duration: 4.5, xp: 30, unlock: 'taught',
     inputs: [{ item: 'mote_terra', qty: 3 }, { item: 'mote_ignis', qty: 1 }, { item: 'mote_aether', qty: 1 }], outputs: [{ item: 'flask', qty: 1 }] },
 ];
@@ -230,7 +230,7 @@ const CALCINATION: Recipe[] = [
 
 // ── Distillation: purify essences into potent distillates ──
 const DISTILLATION: Recipe[] = [
-  { id: 'distill_serene', name: 'Serene Distillate', skill: 'distillation', levelReq: 6, duration: 4.5, xp: 22, unlock: 'taught',
+  { id: 'distill_serene', name: 'Serene Distillate', skill: 'distillation', levelReq: 1, duration: 4.5, xp: 22, unlock: 'taught',
     inputs: [it('calm_essence', 2)], outputs: [it('serene_distillate')] },
   { id: 'distill_radiant', name: 'Radiant Distillate', skill: 'distillation', levelReq: 10, duration: 5, xp: 30, unlock: 'taught',
     inputs: [it('lumen_essence', 2)], outputs: [it('radiant_distillate')] },
@@ -243,7 +243,7 @@ const DISTILLATION: Recipe[] = [
 // ── Transmutation: materials, tools and luxury goods (the Materials tree) ──
 const TRANSMUTATION: Recipe[] = [
   // materials (feedstock)
-  { id: 'trans_living_brass', name: 'Living Brass', skill: 'transmutation', levelReq: 3, duration: 4, xp: 16, unlock: 'taught',
+  { id: 'trans_living_brass', name: 'Living Brass', skill: 'transmutation', levelReq: 1, duration: 4, xp: 16, unlock: 'taught',
     inputs: [it('iron_salt', 3), it('ember_essence')], outputs: [it('living_brass')] },
   { id: 'trans_dreamsilk', name: 'Dreamsilk', skill: 'transmutation', levelReq: 8, duration: 4.5, xp: 26, unlock: 'taught',
     inputs: [it('white_salt', 2), it('mist_essence')], outputs: [it('dreamsilk')] },

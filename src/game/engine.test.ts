@@ -74,10 +74,10 @@ describe('discovery via experiment', () => {
 describe('glassblowing & upgrades', () => {
   it('blows a vial from terra + ignis motes', () => {
     const g = useGame.getState();
-    g.setActive('glassblowing', 'blow_vial'); // 2 terra + 1 ignis → vial, 3s
+    g.setActive('glassblowing', 'blow_vial'); // 2 terra + 1 ignis → 2 vials, 3s
     useGame.setState({ inventory: { mote_terra: 2, mote_ignis: 1 } });
     g.tick(3);
-    expect(useGame.getState().inventory.vial).toBe(1);
+    expect(useGame.getState().inventory.vial).toBe(2);
   });
 
   it('an upgrade speeds up a line so more cycles complete per second', () => {
@@ -98,7 +98,7 @@ describe('orders', () => {
       inventory: { 'sleep_tonic#1': 2 }, // 2 Fine tonics
       orders: [{
         id: 'o1', customer: 'Test', customerIcon: '🧪', product: 'sleep_tonic',
-        qty: 2, minQuality: 0, coins: 90, reputation: 2, hospitalityXp: 30, story: '', createdAt: 0,
+        qty: 2, minQuality: 0, coins: 90, reputation: 2, hospitalityXp: 30, story: '', createdAt: 0, expiresAt: 1e9,
       }],
     });
     useGame.getState().fulfillOrder('o1');
@@ -113,7 +113,7 @@ describe('orders', () => {
       inventory: { 'aether_signet#3': 1, 'aether_signet#1': 5 },
       orders: [{
         id: 'o2', customer: 'Countess', customerIcon: '👸', product: 'aether_signet',
-        qty: 1, minQuality: 3, coins: 100, reputation: 1, hospitalityXp: 10, story: '', createdAt: 0,
+        qty: 1, minQuality: 3, coins: 100, reputation: 1, hospitalityXp: 10, story: '', createdAt: 0, expiresAt: 1e9,
       }],
     });
     useGame.getState().fulfillOrder('o2');
