@@ -8,7 +8,7 @@ import { levelForXp } from './xp';
 import { availableRecipes } from './selectors';
 import { allLines, itemFlows } from './analytics';
 import {
-  RECIPES, EXPERIMENT_RECIPES, UPGRADES, PERKS, getItem, LINE_SKILLS,
+  RECIPES, EXPERIMENT_RECIPES, UPGRADES, PERKS, BIOMES, getItem, LINE_SKILLS,
 } from './content';
 import { baseId } from './quality';
 import type { SkillId } from './types';
@@ -24,15 +24,21 @@ const afford = (inputs: { item: string; qty: number }[]) =>
   inputs.every((i) => (S().inventory[i.item] ?? 0) >= i.qty);
 
 let step = 0;
-const gatherRecipes = (skill: SkillId) => RECIPES.filter((r) => r.skill === skill && r.inputs.length === 0);
 const rot: Record<string, number> = {};
 function rotate(skill: SkillId) {
-  const opts = gatherRecipes(skill).filter((r) => r.levelReq <= lvl(skill));
-  if (opts.length === 0) return;
-  // sticky: only switch target when idle, or every ~80s to diversify the mote supply
-  if (S().activeRecipe[skill] && step % 20 !== 0) return;
+  const opts = availableRecipes(S(), skill).filter((r) => r.inputs.length === 0); // in-biome, in-season gatherables
+  if (opts.length === 0) { S().setActive(skill, null); return; }
+  const cur = S().activeRecipe[skill];
+  const curValid = !!cur && opts.some((o) => o.id === cur);
+  if (curValid && step % 20 !== 0) return; // sticky; diversify every ~80s
   rot[skill] = (rot[skill] ?? 0) + 1;
   S().setActive(skill, opts[rot[skill] % opts.length].id);
+}
+function charter() {
+  for (const b of BIOMES) {
+    if (S().biomes.includes(b.id)) continue;
+    if (S().reputation >= b.repReq && S().coins >= b.cost + 250) S().unlockBiome(b.id);
+  }
 }
 /** A line is "fine" if it's running affordably and not over-stocked — don't disturb it (switching resets progress). */
 function lineFine(skill: SkillId): boolean {
@@ -58,20 +64,22 @@ function leastStocked(skill: SkillId): boolean {
   return can.length > 0;
 }
 function separateMostStocked() {
-  if (lineFine('separation')) return; // don't reset a running separation
-  const seps = RECIPES.filter((r) => r.skill === 'separation');
-  let best: string | null = null, bestStock = 0;
-  for (const r of seps) {
-    const ing = r.inputs[0].item;
-    const stock = S().inventory[ing] ?? 0;
-    if (stock > bestStock) { bestStock = stock; best = r.id; }
-  }
-  if (best) S().setActive('separation', best);
+  // Rotate across every ingredient we hold so all five elements get produced
+  // (always-pick-the-biggest-pile starves Terra/Ignis and stalls discovery).
+  const withStock = RECIPES.filter((r) => r.skill === 'separation' && (S().inventory[r.inputs[0].item] ?? 0) > 0);
+  if (withStock.length === 0) return;
+  const cur = S().activeRecipe.separation;
+  const curOk = !!cur && (S().inventory[RECIPES.find((r) => r.id === cur)!.inputs[0].item] ?? 0) > 0;
+  if (curOk && step % 8 !== 0) return; // sticky-ish, but cycle every ~32s
+  rot.sep = (rot.sep ?? 0) + 1;
+  S().setActive('separation', withStock[rot.sep % withStock.length].id);
 }
 
 function manage() {
   rotate('foraging');
   rotate('gardening');
+  rotate('prospecting');
+  rotate('tidewalking');
   // aether: refine if we have a surplus, otherwise channel
   if (held('mote_aether') > 25 && afford([{ item: 'mote_aether', qty: 5 }])) S().setActive('aethercraft', 'refine_quintessence');
   else rotate('aethercraft');
@@ -146,6 +154,7 @@ describe('playtest — 90 simulated minutes', () => {
       tryDiscoveries();
       fulfill();
       shop();
+      charter();
       S().tick(STEP);
 
       if (firstDiscovery < 0 && S().discovered.length > 0) firstDiscovery = t;

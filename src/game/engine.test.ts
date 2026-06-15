@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useGame } from './store';
+import { useGame, maxOrders } from './store';
 import { levelForXp, xpForLevel } from './xp';
 import { lineInfo, itemFlows } from './analytics';
+import { availableRecipes, inSeason } from './selectors';
+import { RECIPE_BY_ID, seasonAt, SEASON_LENGTH } from './content';
 
 beforeEach(() => {
   useGame.getState().hardReset();
@@ -98,7 +100,7 @@ describe('orders', () => {
       inventory: { 'sleep_tonic#1': 2 }, // 2 Fine tonics
       orders: [{
         id: 'o1', customer: 'Test', customerIcon: '🧪', product: 'sleep_tonic',
-        qty: 2, minQuality: 0, coins: 90, reputation: 2, hospitalityXp: 30, story: '', createdAt: 0, expiresAt: 1e9,
+        qty: 2, minQuality: 0, coins: 90, reputation: 2, hospitalityXp: 30, story: '', createdAt: 0, expiresAt: 1e9, featured: false,
       }],
     });
     useGame.getState().fulfillOrder('o1');
@@ -113,7 +115,7 @@ describe('orders', () => {
       inventory: { 'aether_signet#3': 1, 'aether_signet#1': 5 },
       orders: [{
         id: 'o2', customer: 'Countess', customerIcon: '👸', product: 'aether_signet',
-        qty: 1, minQuality: 3, coins: 100, reputation: 1, hospitalityXp: 10, story: '', createdAt: 0, expiresAt: 1e9,
+        qty: 1, minQuality: 3, coins: 100, reputation: 1, hospitalityXp: 10, story: '', createdAt: 0, expiresAt: 1e9, featured: false,
       }],
     });
     useGame.getState().fulfillOrder('o2');
@@ -183,6 +185,39 @@ describe('phase 3 systems', () => {
     useGame.setState({ inventory: { white_salt: 1, mote_aether: 2 } });
     g.tick(5);
     expect(useGame.getState().inventory.lesser_sigil).toBe(1);
+  });
+});
+
+describe('phase 5 — world & seasons', () => {
+  it('gates gathering behind charted biomes', () => {
+    // Whispering Caves (Prospecting) starts locked.
+    expect(availableRecipes(useGame.getState(), 'prospecting').some((r) => r.id === 'mine_quartz')).toBe(false);
+    useGame.setState({ coins: 500, reputation: 0 });
+    useGame.getState().unlockBiome('caves'); // cost 180, repReq 0
+    expect(useGame.getState().biomes).toContain('caves');
+    expect(useGame.getState().coins).toBe(320);
+    expect(availableRecipes(useGame.getState(), 'prospecting').some((r) => r.id === 'mine_quartz')).toBe(true);
+  });
+
+  it('refuses a biome without enough reputation', () => {
+    useGame.setState({ coins: 9999, reputation: 0 });
+    useGame.getState().unlockBiome('grove'); // needs rep 30
+    expect(useGame.getState().biomes).not.toContain('grove');
+  });
+
+  it('makes seasonal gatherables in/out of season', () => {
+    const sunpetal = RECIPE_BY_ID.grow_sunpetal; // seasons [0,1] = Spring/Summer
+    useGame.setState({ playSeconds: 0 }); // Spring
+    expect(seasonAt(0).name).toBe('Spring');
+    expect(inSeason(useGame.getState(), sunpetal)).toBe(true);
+    useGame.setState({ playSeconds: SEASON_LENGTH * 3 }); // Winter
+    expect(inSeason(useGame.getState(), sunpetal)).toBe(false);
+  });
+
+  it('grows the order book with reputation', () => {
+    expect(maxOrders(0)).toBe(5);
+    expect(maxOrders(120)).toBe(8);
+    expect(maxOrders(999)).toBe(10);
   });
 });
 

@@ -2,6 +2,8 @@ export * from './elements';
 export * from './items';
 export * from './skills';
 export * from './categories';
+export * from './biomes';
+export * from './seasons';
 export * from './recipes';
 export * from './orders';
 export * from './upgrades';

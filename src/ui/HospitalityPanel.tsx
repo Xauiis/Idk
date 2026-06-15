@@ -46,6 +46,11 @@ export function HospitalityPanel() {
                   <span style={{ color: minQ.color }}>{minQ.short}</span><span>{minQ.name}+</span>
                 </span>
               )}
+              {o.featured && (
+                <span className="chip" style={{ borderColor: 'var(--gold)' }} title="In season — pays a festival bonus">
+                  <span style={{ color: 'var(--gold)' }}>✨</span><span>festival</span>
+                </span>
+              )}
               <span style={{ marginLeft: 'auto', fontSize: 12, color: ready ? 'var(--good)' : 'var(--muted)' }}>
                 {have}/{o.qty} eligible
               </span>

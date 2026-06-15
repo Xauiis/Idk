@@ -10,6 +10,9 @@ import {
   EXPERIMENT_RECIPES,
   UPGRADES,
   PERK_BY_ID,
+  BIOME_BY_ID,
+  seasonAt,
+  FESTIVAL_BONUS,
   speedMultipliers,
   productQualityBonus,
   yieldBonus,
@@ -18,17 +21,21 @@ import {
 
 const SAVE_KEY = 'quintessence.save.v1';
 const SAVE_VERSION = 1;
-const MAX_ORDERS = 5;
 const OFFLINE_CAP_SECONDS = 8 * 3600;
 const LOG_LIMIT = 60;
 
 // Production flows along this order each tick, so a gather→separate→combine→craft
 // chain can move one step within a single tick.
 const SKILL_ORDER: SkillId[] = [
-  'foraging', 'gardening', 'aethercraft', 'separation', 'glassblowing', 'calcination',
-  'conjunction', 'distillation', 'transmutation', 'inscription',
+  'foraging', 'gardening', 'prospecting', 'tidewalking', 'aethercraft', 'separation', 'glassblowing',
+  'calcination', 'conjunction', 'distillation', 'transmutation', 'inscription',
   'remedycraft', 'feltcraft', 'lore', 'hospitality',
 ];
+
+/** Order-book capacity grows as the town comes to rely on you. */
+export function maxOrders(reputation: number): number {
+  return 5 + Math.min(5, Math.floor(reputation / 40)); // 5 → 10 slots
+}
 
 export interface GameState {
   version: number;
@@ -47,6 +54,7 @@ export interface GameState {
   discovered: string[]; // discovered conjunction recipe ids
   upgrades: string[]; // owned shop upgrade ids
   perks: string[]; // owned research perk ids
+  biomes: string[]; // charted biome ids
   orders: Order[];
   nextOrderAt: number;
 
@@ -72,6 +80,7 @@ export interface GameState {
   declineOrder: (orderId: string) => void;
   buyUpgrade: (id: string) => void;
   buyPerk: (id: string) => void;
+  unlockBiome: (id: string) => void;
   compostMuddle: () => void;
   hardReset: () => void;
   applyOffline: () => { seconds: number; gains: Record<string, number>; coins: number } | null;
@@ -92,9 +101,9 @@ export interface LinePreset {
 
 function emptySkillMap<T>(value: T): Record<SkillId, T> {
   return {
-    foraging: value, gardening: value, aethercraft: value, separation: value, glassblowing: value,
-    calcination: value, conjunction: value, distillation: value, transmutation: value, inscription: value,
-    remedycraft: value, feltcraft: value, lore: value, hospitality: value,
+    foraging: value, gardening: value, prospecting: value, tidewalking: value, aethercraft: value,
+    separation: value, glassblowing: value, calcination: value, conjunction: value, distillation: value,
+    transmutation: value, inscription: value, remedycraft: value, feltcraft: value, lore: value, hospitality: value,
   };
 }
 
@@ -113,6 +122,7 @@ function freshState() {
     discovered: [] as string[],
     upgrades: [] as string[],
     perks: [] as string[],
+    biomes: ['commons'] as string[],
     orders: [] as Order[],
     nextOrderAt: 6,
     presets: [] as LinePreset[],
@@ -149,12 +159,15 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
   const progress = { ...state.progress };
   let itemsMade = state.stats.itemsMade;
   const speed = speedMultipliers(state.upgrades, state.perks);
+  const seasonIdx = seasonAt(state.playSeconds).index;
 
   for (const skill of SKILL_ORDER) {
     const recipeId = state.activeRecipe[skill];
     if (!recipeId) continue;
     const recipe = RECIPE_BY_ID[recipeId];
     if (!recipe) continue;
+    // seasonal gatherables pause out of their season
+    if (recipe.seasons && !recipe.seasons.includes(seasonIdx)) continue;
 
     const effDur = recipe.duration / (speed[skill] ?? 1);
     const producesProduct = recipe.outputs.some((o) => getItem(o.item).kind === 'product');
@@ -204,10 +217,12 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
   let orders = state.orders.filter((o) => o.expiresAt > playSeconds); // customers wander off (no penalty)
   let nextOrderAt = state.nextOrderAt;
   let orderSeq = state.orderSeq;
-  if (opts.spawnOrders && playSeconds >= nextOrderAt && orders.length < MAX_ORDERS) {
+  if (opts.spawnOrders && playSeconds >= nextOrderAt && orders.length < maxOrders(state.reputation)) {
     const tpl = ORDER_TEMPLATES[Math.floor(Math.random() * ORDER_TEMPLATES.length)];
     const qty = tpl.qtyRange[0] + Math.floor(Math.random() * (tpl.qtyRange[1] - tpl.qtyRange[0] + 1));
     const product = getItem(tpl.product);
+    const featured = product.tree === seasonAt(playSeconds).featuredTree;
+    const coins = Math.round(product.value * qty * 1.6 * (featured ? FESTIVAL_BONUS : 1));
     orders = [
       ...orders,
       {
@@ -217,12 +232,13 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
         product: tpl.product,
         qty,
         minQuality: tpl.minQuality ?? 0,
-        coins: Math.round(product.value * qty * 1.6), // base reward at Fine quality
+        coins, // base reward at Fine quality (incl. festival bonus)
         reputation: qty,
         hospitalityXp: Math.round(product.value * qty * 0.6),
         story: tpl.story,
         createdAt: Math.floor(playSeconds),
         expiresAt: playSeconds + 180 + Math.random() * 180, // 3–6 cozy minutes
+        featured,
       },
     ];
     orderSeq += 1;
@@ -434,6 +450,19 @@ export const useGame = create<GameState>((set, get) => ({
     });
   },
 
+  unlockBiome: (id) => {
+    const s = get();
+    const biome = BIOME_BY_ID[id];
+    if (!biome || s.biomes.includes(id)) return;
+    if (s.reputation < biome.repReq || s.coins < biome.cost) return;
+    set({
+      coins: s.coins - biome.cost,
+      biomes: [...s.biomes, id],
+      log: pushLog(s, `Charted ${biome.name}! New ingredients await.`, 'great'),
+      logSeq: s.logSeq + 1,
+    });
+  },
+
   compostMuddle: () => {
     const s = get();
     const muddle = s.inventory.muddle ?? 0;
@@ -492,6 +521,7 @@ export function saveGame() {
     discovered: s.discovered,
     upgrades: s.upgrades,
     perks: s.perks,
+    biomes: s.biomes,
     orders: s.orders,
     nextOrderAt: s.nextOrderAt,
     presets: s.presets,

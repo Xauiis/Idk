@@ -37,7 +37,7 @@ npm run preview  # serve the production build
 npm test         # run the engine + UI test suite (Vitest)
 ```
 
-The skill rail groups everything by its premise so the loop reads at a glance: **Gather → Refine → Conjure → Craft → Shop**. The **🏚️ The Lab** tab at the top shows every line at once.
+The skill rail groups everything by its premise so the loop reads at a glance: **Gather → Refine → Conjure → Craft → Shop**. The **🏚️ The Lab** tab shows every line at once; the **🗺️ World Map** charts new biomes; the top bar shows the current **season** and its festival.
 
 ### How to play the current build
 1. **Foraging / Gardening** — pick an ingredient and press **Begin**; it gathers on a loop. Each skill runs its own line at once, so the shop hums.
@@ -67,13 +67,14 @@ Everything **ticks while idle** and continues offline — close the tab and the 
 - **`src/game/*.test.ts`** — engine + UI tests (XP table, production lines, discovery, orders, render smoke).
 
 ## Status
-Design + roadmap complete. **Phases 0–4 are built and playable:**
-- **14 skills**, grouped by premise (Gather → Refine → Conjure → Craft → Shop) — Foraging, Gardening, Aethercraft, Separation, Glassblowing, Calcination, Conjunction, Distillation, Transmutation, Inscription, Remedycraft, Feltcraft, Lore, Hospitality
+Design + roadmap complete. **Phases 0–5 are built and playable:**
+- **16 skills**, grouped by premise (Gather → Refine → Conjure → Craft → Shop) — Foraging, Gardening, Prospecting, Tidewalking, Aethercraft, Separation, Glassblowing, Calcination, Conjunction, Distillation, Transmutation, Inscription, Remedycraft, Feltcraft, Lore, Hospitality
 - The 5-element system · a ~28-recipe discoverable combination web · distillates · a managed **Aether/Quintessence economy** · materials, tools & sigils
 - **All three product trees live**: Remedies, **Bottled Feelings** (Feltcraft), and the Materials tree (tools + luxury goods)
 - **Deterministic quality system** (Crude → Fine → Pure → Pristine) with min-quality orders and quality-scaled rewards
+- **A world of 6 biomes** to chart for new ingredients, a **four-season cycle** with seasonal crops and **festivals** that pay bonuses, and **reputation tiers** that grow your order book (5 → 10 slots)
 - **Programmable lines** ("brew until N, then idle") and **The Lab dashboard** — every line's status & rate, net resource-flow analytics with bottleneck flags, stop-all, and save/apply line presets
-- **Lore research** (Study → Insight → perks) · Codex · shop upgrades · 22 townsfolk orders incl. emotional-need stories · idle + capped offline progress · autosave
-- Verified: typecheck clean, **22 tests passing**, production build OK.
+- **Lore research** (Study → Insight → perks) · Codex · World Map · shop upgrades · 28 townsfolk orders incl. emotional-need stories · idle + capped offline progress · autosave
+- Verified: typecheck clean, **27 tests passing** (incl. a 90-minute headless playtest), production build OK.
 
-Next up per [`docs/ROADMAP.md`](docs/ROADMAP.md) **Phase 5**: world & gathering breadth — Prospecting & Tidewalking, a map of biomes to unlock, deeper Gardening (greenhouse, seasons), and seasonal festivals/events.
+Next up per [`docs/ROADMAP.md`](docs/ROADMAP.md) **Phase 6**: cozy meta-systems & the "new skill" cadence — Astrology, Husbandry, Curation, achievements/collection logs.

@@ -1,7 +1,16 @@
-import { RECIPES } from './content';
+import { RECIPES, seasonAt } from './content';
 import type { Recipe, SkillId } from './types';
 import { levelForXp } from './xp';
 import type { GameState } from './store';
+
+/** Is this recipe's biome charted? (recipes without a biome are always sited at home) */
+export function biomeOpen(state: GameState, r: Recipe): boolean {
+  return !r.biome || state.biomes.includes(r.biome);
+}
+/** Is this recipe in season right now? */
+export function inSeason(state: GameState, r: Recipe): boolean {
+  return !r.seasons || r.seasons.includes(seasonAt(state.playSeconds).index);
+}
 
 /** Recipes belonging to a skill, sorted by level requirement. */
 export function recipesForSkill(skill: SkillId): Recipe[] {
@@ -14,15 +23,7 @@ export function availableRecipes(state: GameState, skill: SkillId): Recipe[] {
   return recipesForSkill(skill).filter((r) => {
     if (r.levelReq > level) return false;
     if (r.perkReq && !state.perks.includes(r.perkReq)) return false;
-    if (r.unlock === 'experiment') return state.discovered.includes(r.id);
-    return true;
-  });
-}
-
-/** Recipes that should appear in a skill panel (researched/discovered, level may still gate). */
-export function visibleRecipes(state: GameState, skill: SkillId): Recipe[] {
-  return recipesForSkill(skill).filter((r) => {
-    if (r.perkReq && !state.perks.includes(r.perkReq)) return false;
+    if (!biomeOpen(state, r) || !inSeason(state, r)) return false;
     if (r.unlock === 'experiment') return state.discovered.includes(r.id);
     return true;
   });

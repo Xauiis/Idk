@@ -5,11 +5,13 @@ import { getItem } from './items';
 // ── Gathering: no inputs, yields one ingredient per cycle ──
 const gather = (
   id: string,
-  skill: 'foraging' | 'gardening',
+  skill: 'foraging' | 'gardening' | 'prospecting' | 'tidewalking',
   out: string,
   levelReq: number,
   duration: number,
   xp: number,
+  biome: string,
+  seasons?: number[],
 ): Recipe => ({
   id,
   name: `Gather ${getItem(out).name}`,
@@ -20,31 +22,47 @@ const gather = (
   inputs: [],
   outputs: [{ item: out, qty: 1 }],
   unlock: 'taught',
+  biome,
+  seasons,
   blurb: getItem(out).blurb,
 });
 
 const GATHERING: Recipe[] = [
-  gather('forage_lavender', 'foraging', 'lavender', 1, 3, 8),
-  gather('forage_chamomile', 'foraging', 'chamomile', 1, 3, 8),
-  gather('forage_mistleaf', 'foraging', 'mistleaf', 3, 3.2, 10),
-  gather('forage_embercap', 'foraging', 'embercap', 5, 3.6, 13),
-  gather('forage_thornbud', 'foraging', 'thornbud', 9, 4, 18),
-  gather('forage_moondrop', 'foraging', 'moondrop', 13, 4.6, 23),
-  gather('forage_dreamcap', 'foraging', 'dreamcap', 19, 5.4, 34),
-  gather('forage_glimmerbloom', 'foraging', 'glimmerbloom', 24, 6, 42),
-  gather('grow_honeyclover', 'gardening', 'honeyclover', 1, 3.4, 9),
-  gather('grow_ironroot', 'gardening', 'ironroot', 2, 3.8, 11),
-  gather('grow_saltreed', 'gardening', 'saltreed', 6, 4, 15),
-  gather('grow_frostmint', 'gardening', 'frostmint', 8, 4.4, 17),
-  gather('grow_sunpetal', 'gardening', 'sunpetal', 11, 4.8, 21),
-  gather('grow_dawnberry', 'gardening', 'dawnberry', 17, 5.4, 32),
-  gather('grow_starthistle', 'gardening', 'starthistle', 23, 6.2, 44),
+  // Mirefen Commons (free)
+  gather('forage_lavender', 'foraging', 'lavender', 1, 3, 8, 'commons'),
+  gather('forage_chamomile', 'foraging', 'chamomile', 1, 3, 8, 'commons'),
+  gather('forage_mistleaf', 'foraging', 'mistleaf', 3, 3.2, 10, 'commons'),
+  gather('grow_honeyclover', 'gardening', 'honeyclover', 1, 3.4, 9, 'commons'),
+  gather('grow_ironroot', 'gardening', 'ironroot', 2, 3.8, 11, 'commons'),
+  // Sunpetal Meadows (gardening expansion; some crops are seasonal)
+  gather('grow_saltreed', 'gardening', 'saltreed', 6, 4, 15, 'meadows'),
+  gather('grow_frostmint', 'gardening', 'frostmint', 8, 4.4, 17, 'meadows', [3]),
+  gather('grow_sunpetal', 'gardening', 'sunpetal', 11, 4.8, 21, 'meadows', [0, 1]),
+  gather('grow_dawnberry', 'gardening', 'dawnberry', 17, 5.4, 32, 'meadows', [1]),
+  // Emberpeak Slopes (fiery foraging)
+  gather('forage_embercap', 'foraging', 'embercap', 5, 3.6, 13, 'emberpeak'),
+  gather('forage_thornbud', 'foraging', 'thornbud', 9, 4, 18, 'emberpeak'),
+  // Moonlit Grove (Aether-rich, much of it seasonal/nocturnal)
+  gather('forage_moondrop', 'foraging', 'moondrop', 13, 4.6, 23, 'grove', [2, 3]),
+  gather('forage_dreamcap', 'foraging', 'dreamcap', 19, 5.4, 34, 'grove'),
+  gather('forage_glimmerbloom', 'foraging', 'glimmerbloom', 24, 6, 42, 'grove'),
+  gather('grow_starthistle', 'gardening', 'starthistle', 23, 6.2, 44, 'grove'),
+  // Whispering Caves (Prospecting)
+  gather('mine_quartz', 'prospecting', 'quartz', 1, 3.2, 9, 'caves'),
+  gather('mine_salt_crystal', 'prospecting', 'salt_crystal', 4, 3.8, 14, 'caves'),
+  gather('mine_emberstone', 'prospecting', 'emberstone', 7, 4.2, 18, 'caves'),
+  gather('mine_voidshard', 'prospecting', 'voidshard', 18, 5.8, 38, 'caves'),
+  // Saltmarsh Coast (Tidewalking)
+  gather('tide_kelp', 'tidewalking', 'kelp', 1, 3.2, 9, 'coast'),
+  gather('tide_tidewort', 'tidewalking', 'tidewort', 5, 4, 16, 'coast'),
+  gather('tide_brinepearl', 'tidewalking', 'brinepearl', 14, 5.2, 30, 'coast'),
 ];
 
 // ── Separation: decompose one ingredient into its element motes ──
 const SEPARATION: Recipe[] = [
   'lavender', 'chamomile', 'mistleaf', 'embercap', 'thornbud', 'moondrop', 'dreamcap', 'glimmerbloom',
   'honeyclover', 'ironroot', 'saltreed', 'frostmint', 'sunpetal', 'dawnberry', 'starthistle',
+  'quartz', 'salt_crystal', 'emberstone', 'voidshard', 'kelp', 'tidewort', 'brinepearl',
 ].map((ingId) => {
   const ing = getItem(ingId);
   const comp = ing.composition ?? {};
@@ -285,6 +303,6 @@ export function inputSignature(inputs: ItemStack[]): string {
 
 /** Skills that can run a production line (everything except Hospitality). */
 export const LINE_SKILLS: SkillId[] = [
-  'foraging', 'gardening', 'aethercraft', 'separation', 'glassblowing', 'calcination',
-  'conjunction', 'distillation', 'transmutation', 'inscription', 'remedycraft', 'feltcraft', 'lore',
+  'foraging', 'gardening', 'prospecting', 'tidewalking', 'aethercraft', 'separation', 'glassblowing',
+  'calcination', 'conjunction', 'distillation', 'transmutation', 'inscription', 'remedycraft', 'feltcraft', 'lore',
 ];

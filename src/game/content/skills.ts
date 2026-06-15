@@ -3,6 +3,8 @@ import type { SkillDef, SkillId } from '../types';
 export const SKILLS: SkillDef[] = [
   { id: 'foraging', name: 'Foraging', cluster: 'gather', icon: '🧺', color: '#86c07c', blurb: 'Gather wild herbs, flowers and mushrooms.' },
   { id: 'gardening', name: 'Gardening', cluster: 'gather', icon: '🌱', color: '#7fb069', blurb: 'Grow your own reagents in tidy plots.' },
+  { id: 'prospecting', name: 'Prospecting', cluster: 'gather', icon: '⛏️', color: '#b08a5a', blurb: 'Mine salts, quartz and emberstone from the caves.' },
+  { id: 'tidewalking', name: 'Tidewalking', cluster: 'gather', icon: '🐚', color: '#5aa9dd', blurb: 'Gather kelp, pearls and brine from the coast.' },
   { id: 'aethercraft', name: 'Aethercraft', cluster: 'gather', icon: '✦', color: '#c08ae0', blurb: 'Channel raw Aether from the ley-blooms.' },
   { id: 'separation', name: 'Separation', cluster: 'process', icon: '⚗️', color: '#4f9dd1', blurb: 'Decompose ingredients into pure element motes.' },
   { id: 'glassblowing', name: 'Glassblowing', cluster: 'process', icon: '🥃', color: '#6fb6c9', blurb: 'Shape sand and fire into vials to hold your wares.' },

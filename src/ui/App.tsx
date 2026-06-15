@@ -11,6 +11,9 @@ import { LorePanel } from './LorePanel';
 import { CodexPanel } from './CodexPanel';
 import { ShopPanel } from './ShopPanel';
 import { LabPanel } from './LabPanel';
+import { MapPanel } from './MapPanel';
+import { seasonAt, seasonRemaining } from '../game/content';
+import { fmtTime } from './common';
 import { Sidebar } from './Sidebar';
 import { OfflineModal, type OfflineSummary } from './OfflineModal';
 
@@ -61,6 +64,8 @@ export function App() {
         <main className="card panel">
           {selected === 'lab' ? (
             <LabPanel onSelect={setSelected} />
+          ) : selected === 'map' ? (
+            <MapPanel />
           ) : selected === 'codex' ? (
             <CodexPanel />
           ) : selected === 'shop' ? (
@@ -91,7 +96,9 @@ function TopBar() {
   const coins = useGame((s) => s.coins);
   const rep = useGame((s) => s.reputation);
   const insight = useGame((s) => s.inventory.insight ?? 0);
+  const playSeconds = useGame((s) => s.playSeconds);
   const hardReset = useGame((s) => s.hardReset);
+  const season = seasonAt(playSeconds);
   return (
     <header className="topbar">
       <div className="brand">
@@ -102,6 +109,9 @@ function TopBar() {
         </div>
       </div>
       <div className="spacer" />
+      <div className="stat" title={`${season.festival}: ${season.blurb}`} style={{ borderColor: season.color }}>
+        <span>{season.icon}</span> {season.name} <small>{fmtTime(seasonRemaining(playSeconds))} left</small>
+      </div>
       <div className="stat" title="Coins"><span>🪙</span> {Math.floor(coins)} <small>coins</small></div>
       {insight > 0 && <div className="stat" title="Insight — spend in the Lore research log"><span>💡</span> {Math.floor(insight)} <small>insight</small></div>}
       <div className="stat" title="Reputation in Mirefen"><span>❤</span> {rep} <small>rep</small></div>

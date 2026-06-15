@@ -7,6 +7,8 @@ export type ElementId = 'terra' | 'aqua' | 'ignis' | 'aer' | 'aether';
 export type SkillId =
   | 'foraging'
   | 'gardening'
+  | 'prospecting'
+  | 'tidewalking'
   | 'aethercraft'
   | 'separation'
   | 'glassblowing'
@@ -79,6 +81,10 @@ export interface Recipe {
   unlock: 'taught' | 'experiment';
   /** If set, the recipe stays hidden until this research perk is owned. */
   perkReq?: string;
+  /** Gathering recipes tied to a biome are only available once that biome is charted. */
+  biome?: string;
+  /** Season indices (0..3) this recipe can run in; absent = all year round. */
+  seasons?: number[];
   blurb?: string;
 }
 
@@ -112,6 +118,7 @@ export interface Order {
   story: string;
   createdAt: number; // tick timestamp (seconds of play)
   expiresAt: number; // soft deadline — the customer wanders off, no penalty
+  featured: boolean; // in season — pays a festival bonus
 }
 
 /** A single transient notification surfaced in the activity log. */

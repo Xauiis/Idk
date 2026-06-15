@@ -32,6 +32,15 @@ const INGREDIENTS: ItemDef[] = [
   { id: 'sunpetal', name: 'Sunpetal', kind: 'ingredient', icon: '🌻', tier: 2, value: 6, composition: { ignis: 2, aer: 1, aether: 1 }, blurb: 'Turns to follow you.' },
   { id: 'dawnberry', name: 'Dawnberry', kind: 'ingredient', icon: '🫐', tier: 3, value: 8, composition: { ignis: 2, aether: 2 }, blurb: 'Ripens only at first light.' },
   { id: 'starthistle', name: 'Starthistle', kind: 'ingredient', icon: '✺', tier: 3, value: 10, composition: { aether: 3, aer: 1 }, blurb: 'Drinks the night sky.' },
+  // Prospecting (Whispering Caves)
+  { id: 'quartz', name: 'Quartz', kind: 'ingredient', icon: '🔘', tier: 1, value: 4, composition: { terra: 4 }, blurb: 'Clear, cold and faceted.' },
+  { id: 'salt_crystal', name: 'Salt Crystal', kind: 'ingredient', icon: '🧊', tier: 2, value: 5, composition: { terra: 2, aqua: 2 }, blurb: 'Drawn from the cave brine.' },
+  { id: 'emberstone', name: 'Emberstone', kind: 'ingredient', icon: '🪨', tier: 2, value: 6, composition: { ignis: 3, terra: 1 }, blurb: 'Hot at the heart of the rock.' },
+  { id: 'voidshard', name: 'Voidshard', kind: 'ingredient', icon: '🔺', tier: 3, value: 11, composition: { terra: 1, aether: 3 }, blurb: 'A splinter of buried night.' },
+  // Tidewalking (Saltmarsh Coast)
+  { id: 'kelp', name: 'Kelp', kind: 'ingredient', icon: '🌿', tier: 1, value: 4, composition: { aqua: 3, aer: 1 }, blurb: 'Long green ribbons of the shallows.' },
+  { id: 'tidewort', name: 'Tidewort', kind: 'ingredient', icon: '☘️', tier: 2, value: 5, composition: { aqua: 2, terra: 1, aer: 1 }, blurb: 'Clings to the reed-roots.' },
+  { id: 'brinepearl', name: 'Brinepearl', kind: 'ingredient', icon: '🫧', tier: 3, value: 9, composition: { aqua: 2, aether: 2 }, blurb: 'A bead of moonlit seawater.' },
 ];
 
 // ── Essences & compounds (discovered via Conjunction) ──
