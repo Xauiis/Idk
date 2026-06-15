@@ -15,6 +15,9 @@ import {
   FESTIVAL_BONUS,
   moonAt,
   coziness,
+  GREAT_WORK,
+  BLOOM_SPEED_PER,
+  BLOOM_START_COINS,
   speedMultipliers,
   productQualityBonus,
   yieldBonus,
@@ -67,6 +70,10 @@ export interface GameState {
   orderSeq: number;
   presetSeq: number;
 
+  greatWork: number; // stages of the Magnum Opus completed (0..4)
+  opusComplete: boolean;
+  blooms: number; // New Bloom prestige count (permanent legacy bonus)
+
   stats: { itemsMade: number; ordersFilled: number; discoveries: number };
 
   // ── actions ──
@@ -83,6 +90,8 @@ export interface GameState {
   buyUpgrade: (id: string) => void;
   buyPerk: (id: string) => void;
   unlockBiome: (id: string) => void;
+  advanceGreatWork: () => boolean;
+  bloom: () => void;
   compostMuddle: () => void;
   hardReset: () => void;
   applyOffline: () => { seconds: number; gains: Record<string, number>; coins: number } | null;
@@ -128,6 +137,9 @@ function freshState() {
     biomes: ['commons'] as string[],
     orders: [] as Order[],
     nextOrderAt: 6,
+    greatWork: 0,
+    opusComplete: false,
+    blooms: 0,
     presets: [] as LinePreset[],
     log: [] as LogEntry[],
     logSeq: 1,
@@ -164,6 +176,7 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
   const speed = speedMultipliers(state.upgrades, state.perks);
   const seasonIdx = seasonAt(state.playSeconds).index;
   const moon = moonAt(state.playSeconds).index; // 0 new, 1 waxing, 2 full, 3 waning
+  const legacy = 1 + BLOOM_SPEED_PER * state.blooms; // permanent New Bloom speed bonus
   const GATHER_SKILLS = new Set<SkillId>(['foraging', 'gardening', 'prospecting', 'tidewalking', 'husbandry', 'astrology', 'aethercraft']);
 
   for (const skill of SKILL_ORDER) {
@@ -174,7 +187,7 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
     // seasonal gatherables pause out of their season
     if (recipe.seasons && !recipe.seasons.includes(seasonIdx)) continue;
 
-    const effDur = recipe.duration / (speed[skill] ?? 1);
+    const effDur = recipe.duration / ((speed[skill] ?? 1) * legacy);
     const producesProduct = recipe.outputs.some((o) => getItem(o.item).kind === 'product');
     const isGather = GATHER_SKILLS.has(skill);
     // quality: research/tools + Waning-moon boon
@@ -476,6 +489,51 @@ export const useGame = create<GameState>((set, get) => ({
     });
   },
 
+  advanceGreatWork: () => {
+    const s = get();
+    if (s.opusComplete) return false;
+    const stage = GREAT_WORK[s.greatWork];
+    if (!stage) return false;
+    // gates
+    if (stage.skillReq && levelForXp(s.skillXp[stage.skillReq.skill]) < stage.skillReq.level) return false;
+    if (stage.totalLevelReq) {
+      const total = (Object.keys(s.skillXp) as SkillId[]).reduce((sum, k) => sum + levelForXp(s.skillXp[k]), 0);
+      if (total < stage.totalLevelReq) return false;
+    }
+    if (!canAfford(s.inventory, stage.inputs)) return false;
+
+    const inv = { ...s.inventory };
+    take(inv, stage.inputs);
+    const done = s.greatWork + 1;
+    const complete = done >= GREAT_WORK.length;
+    if (complete) inv.philosophers_stone = (inv.philosophers_stone ?? 0) + 1;
+    set({
+      inventory: inv,
+      greatWork: done,
+      opusComplete: complete,
+      log: pushLog(
+        s,
+        complete ? '🜚 THE GREAT WORK IS COMPLETE. The Philosopher’s Stone is yours.' : `Completed ${stage.latin} — ${stage.name}.`,
+        'great',
+      ),
+      logSeq: s.logSeq + 1,
+    });
+    return true;
+  },
+
+  bloom: () => {
+    const s = get();
+    if (!s.opusComplete) return;
+    const blooms = s.blooms + 1;
+    set({
+      ...freshState(),
+      blooms,
+      coins: 25 + BLOOM_START_COINS * blooms,
+      log: [{ id: 1, text: `🌸 New Bloom! Legacy bonus is now +${Math.round(BLOOM_SPEED_PER * blooms * 100)}% to every line.`, tone: 'great', at: 0 }],
+      logSeq: 2,
+    });
+  },
+
   compostMuddle: () => {
     const s = get();
     const muddle = s.inventory.muddle ?? 0;
@@ -537,6 +595,9 @@ export function saveGame() {
     biomes: s.biomes,
     orders: s.orders,
     nextOrderAt: s.nextOrderAt,
+    greatWork: s.greatWork,
+    opusComplete: s.opusComplete,
+    blooms: s.blooms,
     presets: s.presets,
     stats: s.stats,
     orderSeq: s.orderSeq,
@@ -551,22 +612,48 @@ export function saveGame() {
   }
 }
 
+function applyData(data: Record<string, unknown>): boolean {
+  if (data.version !== SAVE_VERSION) return false; // future: migrations
+  useGame.setState({
+    ...freshState(),
+    ...data,
+    // ensure full skill maps survive shape changes
+    skillXp: { ...emptySkillMap(0), ...(data.skillXp as object) },
+    activeRecipe: { ...emptySkillMap<string | null>(null), ...(data.activeRecipe as object) },
+    progress: { ...emptySkillMap(0), ...(data.progress as object) },
+    lineCap: { ...emptySkillMap<number | null>(null), ...(data.lineCap as object) },
+    log: [],
+  });
+  return true;
+}
+
 export function loadGame(): boolean {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return false;
-    const data = JSON.parse(raw);
-    if (data.version !== SAVE_VERSION) return false; // future: migrations
-    useGame.setState({
-      ...freshState(),
-      ...data,
-      // ensure full skill maps survive shape changes
-      skillXp: { ...emptySkillMap(0), ...data.skillXp },
-      activeRecipe: { ...emptySkillMap<string | null>(null), ...data.activeRecipe },
-      progress: { ...emptySkillMap(0), ...data.progress },
-      lineCap: { ...emptySkillMap<number | null>(null), ...data.lineCap },
-      log: [],
-    });
+    return applyData(JSON.parse(raw));
+  } catch {
+    return false;
+  }
+}
+
+/** Export the current save as a portable code (a local stand-in for cloud saves). */
+export function exportSave(): string {
+  saveGame();
+  try {
+    return btoa(unescape(encodeURIComponent(localStorage.getItem(SAVE_KEY) ?? '')));
+  } catch {
+    return '';
+  }
+}
+
+/** Import a save code produced by exportSave. Returns true on success. */
+export function importSave(code: string): boolean {
+  try {
+    const json = decodeURIComponent(escape(atob(code.trim())));
+    const data = JSON.parse(json);
+    if (!applyData(data)) return false;
+    localStorage.setItem(SAVE_KEY, json);
     return true;
   } catch {
     return false;

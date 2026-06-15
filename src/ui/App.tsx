@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGame, saveGame, loadGame } from '../game/store';
+import { useGame, saveGame, loadGame, exportSave, importSave } from '../game/store';
 import { SKILL_BY_ID } from '../game/content';
 import { levelProgress, MAX_LEVEL } from '../game/xp';
 import type { SkillId } from '../game/types';
@@ -13,6 +13,7 @@ import { ShopPanel } from './ShopPanel';
 import { LabPanel } from './LabPanel';
 import { MapPanel } from './MapPanel';
 import { AlmanacPanel } from './AlmanacPanel';
+import { AscendPanel } from './AscendPanel';
 import { seasonAt, seasonRemaining, moonAt, coziness } from '../game/content';
 import { fmtTime } from './common';
 import { Sidebar } from './Sidebar';
@@ -69,6 +70,8 @@ export function App() {
             <MapPanel />
           ) : selected === 'almanac' ? (
             <AlmanacPanel />
+          ) : selected === 'ascend' ? (
+            <AscendPanel />
           ) : selected === 'codex' ? (
             <CodexPanel />
           ) : selected === 'shop' ? (
@@ -122,6 +125,29 @@ function TopBar() {
       <div className="stat" title="Coins"><span>🪙</span> {Math.floor(coins)} <small>coins</small></div>
       {insight > 0 && <div className="stat" title="Insight — spend in the Lore research log"><span>💡</span> {Math.floor(insight)} <small>insight</small></div>}
       <div className="stat" title="Reputation in Mirefen"><span>❤</span> {rep} <small>rep</small></div>
+      <button
+        className="btn btn-ghost"
+        title="Copy a portable save code to your clipboard"
+        onClick={() => {
+          const code = exportSave();
+          navigator.clipboard?.writeText(code).then(
+            () => alert('Save code copied to your clipboard. Keep it safe!'),
+            () => window.prompt('Copy your save code:', code),
+          );
+        }}
+      >
+        ⬆ Export
+      </button>
+      <button
+        className="btn btn-ghost"
+        title="Load a save code"
+        onClick={() => {
+          const code = window.prompt('Paste a save code to load it:');
+          if (code) alert(importSave(code) ? 'Save loaded!' : 'That code could not be read.');
+        }}
+      >
+        ⬇ Import
+      </button>
       <button
         className="btn btn-ghost"
         title="Erase your save and start over"

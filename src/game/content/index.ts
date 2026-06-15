@@ -6,6 +6,7 @@ export * from './biomes';
 export * from './seasons';
 export * from './moon';
 export * from './achievements';
+export * from './greatwork';
 export * from './recipes';
 export * from './orders';
 export * from './upgrades';

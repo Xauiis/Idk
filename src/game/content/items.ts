@@ -140,6 +140,7 @@ const VESSELS: ItemDef[] = [
 // ── Tokens ──
 const TOKENS: ItemDef[] = [
   { id: 'insight', name: 'Insight', kind: 'token', icon: '💡', color: '#e7c46b', tier: 1, value: 0, blurb: 'A spark of understanding. Spend it in the Research Log.' },
+  { id: 'philosophers_stone', name: "Philosopher's Stone", kind: 'token', icon: '🜚', color: '#f0a84a', tier: 9, value: 0, blurb: 'The Great Work, completed. It is warm, and it is alive.' },
 ];
 
 // ── Products (finished, sellable goods) ──

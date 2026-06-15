@@ -248,6 +248,45 @@ describe('phase 6 — meta systems', () => {
   });
 });
 
+describe('phase 7 — the Great Work & prestige', () => {
+  const allSkillsAt = (lvl: number) => {
+    const map = { ...useGame.getState().skillXp };
+    for (const k of Object.keys(map) as (keyof typeof map)[]) map[k] = xpForLevel(lvl);
+    return map;
+  };
+
+  it('advances a stage only when items + skill gate are met, consuming the inputs', () => {
+    const g = useGame.getState();
+    useGame.setState({ inventory: { ember_essence: 6, clay_essence: 6, iron_salt: 4 } });
+    expect(useGame.getState().advanceGreatWork()).toBe(false); // Calcination too low
+    useGame.setState({ skillXp: { ...useGame.getState().skillXp, calcination: xpForLevel(25) } });
+    expect(g.advanceGreatWork()).toBe(true);
+    const s = useGame.getState();
+    expect(s.greatWork).toBe(1);
+    expect(s.inventory.ember_essence ?? 0).toBe(0);
+  });
+
+  it('completes the Opus and grants the Philosopher\'s Stone, then New Bloom resets with a legacy bonus', () => {
+    useGame.setState({
+      greatWork: 3, // final stage (Rubedo)
+      skillXp: allSkillsAt(50), // 19 skills × 50 = 950 total ≥ 700
+      inventory: { panacea: 1, sunforge_essence: 2, master_sigil: 1, quintessence: 10 },
+    });
+    expect(useGame.getState().advanceGreatWork()).toBe(true);
+    const s = useGame.getState();
+    expect(s.opusComplete).toBe(true);
+    expect(s.inventory.philosophers_stone).toBe(1);
+
+    useGame.getState().bloom();
+    const b = useGame.getState();
+    expect(b.blooms).toBe(1);
+    expect(b.opusComplete).toBe(false);
+    expect(b.greatWork).toBe(0);
+    expect(b.coins).toBe(25 + 150); // BLOOM_START_COINS × 1
+    expect(b.skillXp.conjunction).toBe(0); // fresh run
+  });
+});
+
 describe('phase 4 — the lab', () => {
   it('reports line status: running, stalled, paused', () => {
     const g = useGame.getState();
