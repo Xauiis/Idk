@@ -1,0 +1,14 @@
+{
+  "name": "Quintessence — A Cozy Alchemy Apothecary",
+  "short_name": "Quintessence",
+  "description": "A cozy alchemy-apothecary automation game with a deep multi-skill system.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1b1630",
+  "theme_color": "#2a2438",
+  "icons": [
+    { "src": "favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any maskable" }
+  ]
+}

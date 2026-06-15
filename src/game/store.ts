@@ -362,13 +362,22 @@ export const useGame = create<GameState>((set, get) => ({
     const match = EXPERIMENT_RECIPES.find((r) => inputSignature(r.inputs) === sig);
     const conjLevel = levelForXp(s.skillXp.conjunction);
 
-    // No match → harmless muddle.
+    // No match → harmless muddle. If the right *elements* are present but the
+    // proportions are wrong, nudge the player rather than leave them guessing.
     if (!match) {
       take(inv, inputs);
       give(inv, [{ item: 'muddle', qty: 1 }]);
+      const selSet = inputs.map((i) => i.item).sort().join(',');
+      const nearMiss = EXPERIMENT_RECIPES.some(
+        (r) => !s.discovered.includes(r.id) && [...new Set(r.inputs.map((i) => i.item))].sort().join(',') === selSet,
+      );
       set({
         inventory: inv,
-        log: pushLog(s, 'That fizzled into a puff of Muddle. Worth a try!', 'muted'),
+        log: pushLog(
+          s,
+          nearMiss ? 'The right elements are here — but the proportions feel off…' : 'That fizzled into a puff of Muddle. Worth a try!',
+          nearMiss ? 'info' : 'muted',
+        ),
         logSeq: s.logSeq + 1,
       });
       return { kind: 'muddle' };
