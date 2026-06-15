@@ -1,5 +1,13 @@
 import { getItem } from '../game/content';
 
+/** Compact number formatting: exact under 10k, then 12.3k / 4.5m. */
+export function fmtNum(n: number): string {
+  const v = Math.floor(n);
+  if (v < 10000) return v.toLocaleString();
+  if (v < 1_000_000) return (v / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+  return (v / 1_000_000).toFixed(2).replace(/\.?0+$/, '') + 'm';
+}
+
 export function fmtTime(totalSeconds: number): string {
   const s = Math.floor(totalSeconds);
   const h = Math.floor(s / 3600);

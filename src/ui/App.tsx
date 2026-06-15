@@ -18,6 +18,8 @@ import { QuestsPanel } from './QuestsPanel';
 import { seasonAt, seasonRemaining, moonAt, coziness, QUESTS } from '../game/content';
 import { fmtTime } from './common';
 import { Sidebar } from './Sidebar';
+import { Toasts } from './Toasts';
+import { fmtNum } from './common';
 import { OfflineModal, type OfflineSummary } from './OfflineModal';
 
 const TICK_MS = 100;
@@ -99,6 +101,7 @@ export function App() {
         </main>
         <Sidebar />
       </div>
+      <Toasts />
       {offline && <OfflineModal summary={offline} onClose={() => setOffline(null)} />}
       {welcome && <WelcomeModal onClose={() => { setWelcome(false); setSelected('quests'); }} />}
     </div>
@@ -164,8 +167,8 @@ function TopBar() {
       </div>
       <div className="stat" title={`${moon.name}: ${moon.boon}`}><span>{moon.icon}</span> <small>{moon.name}</small></div>
       {cozy > 0 && <div className="stat" title="Coziness — better tips & more patient customers"><span>🎀</span> {cozy} <small>cozy</small></div>}
-      <div className="stat" title="Coins"><span>🪙</span> {Math.floor(coins)} <small>coins</small></div>
-      {insight > 0 && <div className="stat" title="Insight — spend in the Lore research log"><span>💡</span> {Math.floor(insight)} <small>insight</small></div>}
+      <div className="stat" title={`${Math.floor(coins)} coins`}><span>🪙</span> {fmtNum(coins)} <small>coins</small></div>
+      {insight > 0 && <div className="stat" title="Insight — spend in the Lore research log"><span>💡</span> {fmtNum(insight)} <small>insight</small></div>}
       <div className="stat" title="Reputation in Mirefen"><span>❤</span> {rep} <small>rep</small></div>
       <button
         className="btn btn-ghost"
