@@ -44,8 +44,13 @@ npm test         # run the engine + UI test suite (Vitest)
 4. **Conjunction** — in *Experiment*, drop motes (and discovered essences) into the crucible and **Combine**. A valid new blend is a **discovery** (e.g. `Ignis + Aqua → Steam Essence`, or `Steam + Ember → Geyser Tincture`); nonsense becomes harmless **Muddle**. Discovered recipes can then be set to auto-run.
 5. **Remedycraft** — formulate essences + a vessel into finished products (Sleep Tonic → … → Lesser Panacea).
 6. **Hospitality** — townsfolk wander in with orders; serve them from stock for coins, reputation, and XP.
-7. **Codex** — your collection log: track which of the ~28 combinations you've discovered.
-8. **Apothecary (shop)** — spend coins on upgrades that speed up your lines.
+7. **Calcination** — burn ingredients down to **salts & ash** (the Materials feedstock).
+8. **Distillation** — purify essences into potent **distillates** for the finest remedies.
+9. **Transmutation** — forge salts + essences into **materials → tools** (held items that grant passive bonuses) and **luxury goods** to sell.
+10. **Lore** — run **Study** actions for **Insight**, then spend it in the **Research Log** on permanent perks (+quality, +speed, recipe reveals, Codex hints).
+11. **Quality** — every product is crafted at a grade (**Crude → Fine → Pure → Pristine**) set by your skill level, tools, and research. Higher grades sell for more, and fussy customers demand a minimum grade.
+12. **Codex** — your collection log: track which of the ~28 combinations you've discovered.
+13. **Apothecary (shop)** — spend coins on upgrades that speed up your lines.
 
 Everything **ticks while idle** and continues offline — close the tab and the lab keeps simmering (you'll get a welcome-back summary). Progress autosaves to `localStorage`.
 
@@ -56,10 +61,12 @@ Everything **ticks while idle** and continues offline — close the tab and the 
 - **`src/game/*.test.ts`** — engine + UI tests (XP table, production lines, discovery, orders, render smoke).
 
 ## Status
-Design + roadmap complete. **Phase 0 (engine) and Phase 1 (the cozy vertical slice) are built and playable:**
-- 7 skills (Foraging, Gardening, Separation, Glassblowing, Conjunction, Remedycraft, Hospitality)
-- 15 ingredients · the 5-element system · a ~28-recipe discoverable combination web (dyads → triads → essence compounds) · 2 vessels · 10 products across the remedy/feeling/material trees
-- Codex collection log · shop upgrades · order book with 10 townsfolk · idle + capped offline progress · autosave
-- Tuned for a multi-hour 1→30 progression. Verified: typecheck clean, 11 tests passing, production build OK.
+Design + roadmap complete. **Phases 0–2 are built and playable:**
+- **11 skills** — Foraging, Gardening, Separation, Glassblowing, Calcination, Conjunction, Distillation, Transmutation, Remedycraft, Lore, Hospitality
+- The 5-element system · a ~28-recipe discoverable combination web · 4 distillates · 9 materials · 3 tools · 6 research perks
+- **Two+ product trees**: remedies, bottled feelings, and a full **Materials tree** (tools + luxury goods)
+- **Deterministic quality system** (Crude → Fine → Pure → Pristine) on every product, with min-quality orders and quality-scaled rewards
+- **Lore research**: Study → Insight → permanent perks · Codex collection log · shop upgrades · 16 townsfolk orders · idle + capped offline progress · autosave
+- Verified: typecheck clean, **15 tests passing**, production build OK.
 
-Next up per [`docs/ROADMAP.md`](docs/ROADMAP.md) **Phase 2**: the Lore/research skill, the processing skills (Distillation, Calcination), a Purity/Potency quality system, and deepening the Materials product tree.
+Next up per [`docs/ROADMAP.md`](docs/ROADMAP.md) **Phase 3**: Bottled-Feelings depth & narrative orders, the Aether economy, and Inscription (programmable lines).

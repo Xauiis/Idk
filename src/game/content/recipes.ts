@@ -140,6 +140,8 @@ const CRAFT: CraftDef[] = [
   { out: 'clarity_elixir', level: 14, xp: 70, dur: 5.6, inputs: [it('serenity_distillate'), it('flask')] },
   { out: 'dreamless_philtre', level: 17, xp: 88, dur: 6, inputs: [it('dreamwater'), it('whisper_essence'), it('flask')] },
   { out: 'sunforge_potion', level: 22, xp: 130, dur: 6.6, inputs: [it('sunforge_essence'), it('flask')] },
+  { out: 'tranquil_balm', level: 16, xp: 92, dur: 6, inputs: [it('serene_distillate'), it('flask')] },
+  { out: 'dawnlight_tonic', level: 20, xp: 132, dur: 6.5, inputs: [it('radiant_distillate'), it('flask')] },
   { out: 'panacea', level: 26, xp: 190, dur: 7.5, inputs: [it('lullaby_essence'), it('daystar_concentrate'), it('flask')] },
 ];
 
@@ -155,8 +157,78 @@ const REMEDYCRAFT: Recipe[] = CRAFT.map((c) => ({
   unlock: 'taught',
 }));
 
+// ── Lore: study a sample to earn Insight ──
+const study = (id: string, ing: string, insight: number, level: number, dur: number, xp: number): Recipe => ({
+  id, name: `Study ${getItem(ing).name}`, skill: 'lore', levelReq: level, duration: dur, xp,
+  inputs: [it(ing)], outputs: [it('insight', insight)], unlock: 'taught',
+  blurb: `Take notes on ${getItem(ing).name} for a spark of Insight.`,
+});
+const LORE: Recipe[] = [
+  study('study_garden', 'honeyclover', 2, 1, 4, 10),
+  study('study_wild', 'mistleaf', 2, 1, 4, 10),
+  study('study_fungus', 'embercap', 3, 4, 4.5, 16),
+  study('study_lunar', 'moondrop', 4, 9, 5, 24),
+  study('study_astral', 'starthistle', 6, 16, 6, 40),
+];
+
+// ── Calcination: burn an ingredient down to salts / ash ──
+const calcine = (id: string, ing: string, out: string, qty: number, level: number, dur: number, xp: number): Recipe => ({
+  id, name: `Calcine ${getItem(ing).name}`, skill: 'calcination', levelReq: level, duration: dur, xp,
+  inputs: [it(ing)], outputs: [it(out, qty)], unlock: 'taught',
+  blurb: `Reduce ${getItem(ing).name} to ${getItem(out).name}.`,
+});
+const CALCINATION: Recipe[] = [
+  calcine('calcine_ironroot', 'ironroot', 'iron_salt', 2, 1, 3, 9),
+  calcine('calcine_embercap', 'embercap', 'ember_ash', 2, 3, 3.2, 12),
+  calcine('calcine_saltreed', 'saltreed', 'white_salt', 3, 5, 3.6, 16),
+  calcine('calcine_glimmerbloom', 'glimmerbloom', 'lumen_ash', 2, 12, 4.4, 28),
+  calcine('calcine_starthistle', 'starthistle', 'astral_salt', 2, 18, 5, 40),
+];
+
+// ── Distillation: purify essences into potent distillates ──
+const DISTILLATION: Recipe[] = [
+  { id: 'distill_serene', name: 'Serene Distillate', skill: 'distillation', levelReq: 6, duration: 4.5, xp: 22, unlock: 'taught',
+    inputs: [it('calm_essence', 2)], outputs: [it('serene_distillate')] },
+  { id: 'distill_radiant', name: 'Radiant Distillate', skill: 'distillation', levelReq: 10, duration: 5, xp: 30, unlock: 'taught',
+    inputs: [it('lumen_essence', 2)], outputs: [it('radiant_distillate')] },
+  { id: 'distill_deepdream', name: 'Deepdream Distillate', skill: 'distillation', levelReq: 16, duration: 5.6, xp: 46, unlock: 'taught',
+    inputs: [it('dreamwater', 2)], outputs: [it('deepdream_distillate')] },
+  { id: 'distill_solar', name: 'Solar Distillate', skill: 'distillation', levelReq: 24, duration: 6.5, xp: 70, unlock: 'taught', perkReq: 'master_distiller',
+    inputs: [it('sunforge_essence', 2)], outputs: [it('solar_distillate')] },
+];
+
+// ── Transmutation: materials, tools and luxury goods (the Materials tree) ──
+const TRANSMUTATION: Recipe[] = [
+  // materials (feedstock)
+  { id: 'trans_living_brass', name: 'Living Brass', skill: 'transmutation', levelReq: 3, duration: 4, xp: 16, unlock: 'taught',
+    inputs: [it('iron_salt', 3), it('ember_essence')], outputs: [it('living_brass')] },
+  { id: 'trans_dreamsilk', name: 'Dreamsilk', skill: 'transmutation', levelReq: 8, duration: 4.5, xp: 26, unlock: 'taught',
+    inputs: [it('white_salt', 2), it('mist_essence')], outputs: [it('dreamsilk')] },
+  { id: 'trans_glass_lens', name: 'Glass Lens', skill: 'transmutation', levelReq: 11, duration: 5, xp: 34, unlock: 'taught',
+    inputs: [it('white_salt', 2), it('lumen_essence')], outputs: [it('glass_lens')] },
+  { id: 'trans_aether_alloy', name: 'Aether Alloy', skill: 'transmutation', levelReq: 20, duration: 6, xp: 64, unlock: 'taught',
+    inputs: [it('astral_salt', 2), it('lumen_ash'), m('aether')], outputs: [it('aether_alloy')] },
+  // tools (crafted once; grant a passive bonus while held)
+  { id: 'forge_fine_dropper', name: 'Fine Dropper', skill: 'transmutation', levelReq: 9, duration: 6, xp: 50, unlock: 'taught',
+    inputs: [it('living_brass', 2), it('glass_lens')], outputs: [it('fine_dropper')] },
+  { id: 'forge_jewelers_loupe', name: "Jeweler's Loupe", skill: 'transmutation', levelReq: 13, duration: 6.5, xp: 70, unlock: 'taught',
+    inputs: [it('glass_lens', 2), it('dreamsilk')], outputs: [it('jewelers_loupe')] },
+  { id: 'forge_master_alembic', name: 'Master Alembic', skill: 'transmutation', levelReq: 22, duration: 8, xp: 150, unlock: 'taught',
+    inputs: [it('aether_alloy'), it('living_brass'), it('glass_lens')], outputs: [it('master_alembic')] },
+  // luxury goods (sellable; carry quality)
+  { id: 'craft_brass_charm', name: 'Brass Charm', skill: 'transmutation', levelReq: 4, duration: 4.5, xp: 24, unlock: 'taught',
+    inputs: [it('living_brass', 2)], outputs: [it('brass_charm')] },
+  { id: 'craft_dreamsilk_sachet', name: 'Dreamsilk Sachet', skill: 'transmutation', levelReq: 9, duration: 5, xp: 40, unlock: 'taught',
+    inputs: [it('dreamsilk', 2)], outputs: [it('dreamsilk_sachet')] },
+  { id: 'craft_lens_ornament', name: 'Crystal Lens Ornament', skill: 'transmutation', levelReq: 13, duration: 5.5, xp: 60, unlock: 'taught',
+    inputs: [it('glass_lens'), it('lumen_essence')], outputs: [it('lens_ornament')] },
+  { id: 'craft_aether_signet', name: 'Aether Signet', skill: 'transmutation', levelReq: 21, duration: 6.5, xp: 120, unlock: 'taught',
+    inputs: [it('aether_alloy')], outputs: [it('aether_signet')] },
+];
+
 export const RECIPES: Recipe[] = [
-  ...GATHERING, ...SEPARATION, ...GLASSBLOWING, ...CONJUNCTION, ...REMEDYCRAFT,
+  ...GATHERING, ...SEPARATION, ...GLASSBLOWING, ...CALCINATION, ...CONJUNCTION,
+  ...DISTILLATION, ...TRANSMUTATION, ...REMEDYCRAFT, ...LORE,
 ];
 
 export const RECIPE_BY_ID: Record<string, Recipe> = Object.fromEntries(RECIPES.map((r) => [r.id, r]));
@@ -168,7 +240,8 @@ export function inputSignature(inputs: ItemStack[]): string {
   return inputs.map((i) => `${i.item}x${i.qty}`).sort().join('+');
 }
 
-/** Skills that can run a production line (everything except the support skill). */
+/** Skills that can run a production line (everything except Hospitality). */
 export const LINE_SKILLS: SkillId[] = [
-  'foraging', 'gardening', 'separation', 'glassblowing', 'conjunction', 'remedycraft',
+  'foraging', 'gardening', 'separation', 'glassblowing', 'calcination',
+  'conjunction', 'distillation', 'transmutation', 'remedycraft', 'lore',
 ];

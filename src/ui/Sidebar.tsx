@@ -1,8 +1,9 @@
 import { useGame } from '../game/store';
-import { ITEMS } from '../game/content';
+import { getItem } from '../game/content';
+import { baseId, keyGrade, quality } from '../game/quality';
 import { fmtTime } from './common';
 
-const KIND_ORDER = ['mote', 'ingredient', 'essence', 'product', 'byproduct'];
+const KIND_ORDER = ['token', 'mote', 'ingredient', 'essence', 'material', 'tool', 'vessel', 'product', 'byproduct'];
 
 export function Sidebar() {
   const inventory = useGame((s) => s.inventory);
@@ -10,9 +11,18 @@ export function Sidebar() {
   const compost = useGame((s) => s.compostMuddle);
   const playSeconds = useGame((s) => s.playSeconds);
 
-  const entries = ITEMS
-    .filter((it) => (inventory[it.id] ?? 0) > 0)
-    .sort((a, b) => KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind) || a.tier - b.tier);
+  const entries = Object.entries(inventory)
+    .filter(([, q]) => q > 0)
+    .map(([key, q]) => {
+      const base = baseId(key);
+      return { key, qty: q, grade: keyGrade(key), def: getItem(base) };
+    })
+    .sort(
+      (a, b) =>
+        KIND_ORDER.indexOf(a.def.kind) - KIND_ORDER.indexOf(b.def.kind) ||
+        a.def.tier - b.def.tier ||
+        a.grade - b.grade,
+    );
 
   const hasMuddle = (inventory.muddle ?? 0) > 0;
 
@@ -24,13 +34,21 @@ export function Sidebar() {
           <div className="inv-empty">Nothing yet — head to Foraging and begin gathering.</div>
         ) : (
           <div className="inv-grid">
-            {entries.map((it) => (
-              <div className="inv-cell" key={it.id} title={`${it.name}${it.blurb ? ' — ' + it.blurb : ''}`}>
-                {it.color && <span className="dot" style={{ background: it.color }} />}
-                <span className="em">{it.icon}</span>
-                <span className="q">{fmtQty(inventory[it.id])}</span>
-              </div>
-            ))}
+            {entries.map(({ key, qty, grade, def }) => {
+              const q = grade >= 0 ? quality(grade) : null;
+              return (
+                <div
+                  className="inv-cell"
+                  key={key}
+                  title={`${def.name}${q ? ` (${q.name})` : ''}${def.blurb ? ' — ' + def.blurb : ''}`}
+                >
+                  {def.color && <span className="dot" style={{ background: def.color }} />}
+                  {q && <span className="grade" style={{ color: q.color }}>{q.short}</span>}
+                  <span className="em">{def.icon}</span>
+                  <span className="q">{fmtQty(qty)}</span>
+                </div>
+              );
+            })}
           </div>
         )}
         {hasMuddle && (
@@ -46,7 +64,8 @@ export function Sidebar() {
           {log.length === 0 && <div className="inv-empty">Your day begins…</div>}
           {log.map((e) => (
             <div className={`entry ${e.tone}`} key={e.id}>
-              <span>{e.text}</span> <span className="t">· {fmtTime(playSeconds - e.at) === '0s' ? 'now' : fmtTime(playSeconds - e.at) + ' ago'}</span>
+              <span>{e.text}</span>{' '}
+              <span className="t">· {fmtTime(playSeconds - e.at) === '0s' ? 'now' : fmtTime(playSeconds - e.at) + ' ago'}</span>
             </div>
           ))}
         </div>

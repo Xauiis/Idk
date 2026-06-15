@@ -4,7 +4,7 @@
 
 The guiding principle: **prove the cozy core loop is fun before building breadth.** Phase 1 is a complete, polished, ~3-hour vertical slice. Everything after is additive content that slots into the same data-driven engine, mirroring how Melvor/RuneScape ship "a new skill" as a self-contained update.
 
-> **Build status:** ✅ **Phase 0** (engine) and ✅ **Phase 1** (vertical slice) are implemented and playable — 7 skills, 15 ingredients, the 5-element system, a ~28-recipe discoverable combination web, Glassblowing/vials, the Codex, shop upgrades, the order book, and idle + offline progress. **Phase 2 is the next target.**
+> **Build status:** ✅ **Phase 0** (engine), ✅ **Phase 1** (vertical slice), and ✅ **Phase 2** (depth & second tree) are implemented and playable — **11 skills**, the 5-element system, a ~28-recipe combination web, the **deterministic quality system** (Crude→Pristine) with min-quality orders, the **Lore research log** (Study→Insight→perks), Calcination/Distillation/Transmutation, the full **Materials tree** (tools + luxury goods), the Codex, shop upgrades, and idle + offline progress. **Phase 3 is the next target.**
 
 ---
 

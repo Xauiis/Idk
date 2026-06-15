@@ -11,6 +11,7 @@ export function ProcessPanel({ skill }: { skill: SkillId }) {
   const active = useGame((s) => s.activeRecipe[skill]);
   const progress = useGame((s) => s.progress[skill]);
   const discovered = useGame((s) => s.discovered);
+  const perks = useGame((s) => s.perks);
   const inventory = useGame((s) => s.inventory);
   const upgrades = useGame((s) => s.upgrades);
   const setActive = useGame((s) => s.setActive);
@@ -18,9 +19,12 @@ export function ProcessPanel({ skill }: { skill: SkillId }) {
   const level = levelForXp(xp);
   const def = SKILL_BY_ID[skill];
   const recipes = recipesForSkill(skill);
-  const speed = speedMultipliers(upgrades)[skill] ?? 1;
+  const speed = speedMultipliers(upgrades, perks)[skill] ?? 1;
 
-  const canShow = (r: Recipe) => r.unlock !== 'experiment' || discovered.includes(r.id);
+  const canShow = (r: Recipe) => {
+    if (r.perkReq && !perks.includes(r.perkReq)) return false;
+    return r.unlock !== 'experiment' || discovered.includes(r.id);
+  };
   const visible = recipes.filter(canShow);
 
   return (

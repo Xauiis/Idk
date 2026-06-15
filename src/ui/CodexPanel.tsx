@@ -3,7 +3,9 @@ import { EXPERIMENT_RECIPES, getItem } from '../game/content';
 
 export function CodexPanel() {
   const discovered = useGame((s) => s.discovered);
+  const perks = useGame((s) => s.perks);
   const stats = useGame((s) => s.stats);
+  const hint = perks.includes('cartography'); // Web Cartography reveals recipes you haven't found
 
   const total = EXPERIMENT_RECIPES.length;
   const found = EXPERIMENT_RECIPES.filter((r) => discovered.includes(r.id));
@@ -35,14 +37,15 @@ export function CodexPanel() {
         {EXPERIMENT_RECIPES.map((r) => {
           const known = discovered.includes(r.id);
           const out = getItem(r.outputs[0].item);
+          const reveal = known || hint;
           return (
             <div key={r.id} className={`recipe${known ? '' : ' locked'}`} style={{ gap: 7 }}>
               <div className="top">
-                <span className="ic">{known ? out.icon : '❔'}</span>
-                <span className="nm">{known ? out.name : '???'}</span>
+                <span className="ic">{reveal ? out.icon : '❔'}</span>
+                <span className="nm">{known ? out.name : hint ? out.name : '???'}</span>
                 <span className="dur">Lv {r.levelReq}</span>
               </div>
-              {known ? (
+              {reveal ? (
                 <div className="io">
                   {r.inputs.map((i) => {
                     const ii = getItem(i.item);
@@ -52,6 +55,7 @@ export function CodexPanel() {
                   })}
                   <span className="arrow">→</span>
                   <span className="chip"><span>{out.icon}</span><span>{out.name}</span></span>
+                  {!known && <span className="req" style={{ color: 'var(--faint)' }}>not yet brewed</span>}
                 </div>
               ) : (
                 <div className="io" style={{ color: 'var(--faint)' }}>undiscovered — try it in the crucible</div>

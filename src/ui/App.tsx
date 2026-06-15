@@ -7,6 +7,7 @@ import { SkillRail } from './SkillRail';
 import { ProcessPanel } from './ProcessPanel';
 import { ConjunctionPanel } from './ConjunctionPanel';
 import { HospitalityPanel } from './HospitalityPanel';
+import { LorePanel } from './LorePanel';
 import { CodexPanel } from './CodexPanel';
 import { ShopPanel } from './ShopPanel';
 import { Sidebar } from './Sidebar';
@@ -66,6 +67,8 @@ export function App() {
               <PanelHeader skill={selected as SkillId} />
               {selected === 'conjunction' ? (
                 <ConjunctionPanel />
+              ) : selected === 'lore' ? (
+                <LorePanel />
               ) : selected === 'hospitality' ? (
                 <HospitalityPanel />
               ) : (
@@ -84,6 +87,7 @@ export function App() {
 function TopBar() {
   const coins = useGame((s) => s.coins);
   const rep = useGame((s) => s.reputation);
+  const insight = useGame((s) => s.inventory.insight ?? 0);
   const hardReset = useGame((s) => s.hardReset);
   return (
     <header className="topbar">
@@ -96,6 +100,7 @@ function TopBar() {
       </div>
       <div className="spacer" />
       <div className="stat" title="Coins"><span>🪙</span> {Math.floor(coins)} <small>coins</small></div>
+      {insight > 0 && <div className="stat" title="Insight — spend in the Lore research log"><span>💡</span> {Math.floor(insight)} <small>insight</small></div>}
       <div className="stat" title="Reputation in Mirefen"><span>❤</span> {rep} <small>rep</small></div>
       <button
         className="btn btn-ghost"

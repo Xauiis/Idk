@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { LogEntry, Order, SkillId } from './types';
 import { levelForXp } from './xp';
+import { gradeFor, pkey, baseId, quality } from './quality';
 import {
   ORDER_TEMPLATES,
   RECIPE_BY_ID,
@@ -8,7 +9,11 @@ import {
   inputSignature,
   EXPERIMENT_RECIPES,
   UPGRADES,
+  PERK_BY_ID,
   speedMultipliers,
+  productQualityBonus,
+  yieldBonus,
+  insightMultiplier,
 } from './content';
 
 const SAVE_KEY = 'quintessence.save.v1';
@@ -20,7 +25,8 @@ const LOG_LIMIT = 60;
 // Production flows along this order each tick, so a gather→separate→combine→craft
 // chain can move one step within a single tick.
 const SKILL_ORDER: SkillId[] = [
-  'foraging', 'gardening', 'separation', 'glassblowing', 'conjunction', 'remedycraft', 'hospitality',
+  'foraging', 'gardening', 'separation', 'glassblowing', 'calcination',
+  'conjunction', 'distillation', 'transmutation', 'remedycraft', 'lore', 'hospitality',
 ];
 
 export interface GameState {
@@ -38,6 +44,7 @@ export interface GameState {
 
   discovered: string[]; // discovered conjunction recipe ids
   upgrades: string[]; // owned shop upgrade ids
+  perks: string[]; // owned research perk ids
   orders: Order[];
   nextOrderAt: number;
 
@@ -53,6 +60,7 @@ export interface GameState {
   experiment: (items: Record<string, number>) => ExperimentResult;
   fulfillOrder: (orderId: string) => void;
   buyUpgrade: (id: string) => void;
+  buyPerk: (id: string) => void;
   compostMuddle: () => void;
   hardReset: () => void;
   applyOffline: () => { seconds: number; gains: Record<string, number>; coins: number } | null;
@@ -66,8 +74,8 @@ export type ExperimentResult =
 
 function emptySkillMap<T>(value: T): Record<SkillId, T> {
   return {
-    foraging: value, gardening: value, separation: value, glassblowing: value,
-    conjunction: value, remedycraft: value, hospitality: value,
+    foraging: value, gardening: value, separation: value, glassblowing: value, calcination: value,
+    conjunction: value, distillation: value, transmutation: value, remedycraft: value, lore: value, hospitality: value,
   };
 }
 
@@ -84,6 +92,7 @@ function freshState() {
     progress: emptySkillMap(0),
     discovered: [] as string[],
     upgrades: [] as string[],
+    perks: [] as string[],
     orders: [] as Order[],
     nextOrderAt: 6,
     log: [] as LogEntry[],
@@ -110,7 +119,7 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
   const xp = { ...state.skillXp };
   const progress = { ...state.progress };
   let itemsMade = state.stats.itemsMade;
-  const speed = speedMultipliers(state.upgrades);
+  const speed = speedMultipliers(state.upgrades, state.perks);
 
   for (const skill of SKILL_ORDER) {
     const recipeId = state.activeRecipe[skill];
@@ -119,9 +128,13 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
     if (!recipe) continue;
 
     const effDur = recipe.duration / (speed[skill] ?? 1);
+    const producesProduct = recipe.outputs.some((o) => getItem(o.item).kind === 'product');
+    const qBonus = producesProduct ? productQualityBonus(skill, state.perks, inv) : 0;
+    const gather = (skill === 'foraging' || skill === 'gardening') ? yieldBonus(skill, state.perks) : 0;
+    const insightMul = skill === 'lore' ? insightMultiplier(state.perks) : 1;
+
     let acc = (progress[skill] ?? 0) + dt;
-    // Cap runaway accumulation when stalled so the line can't bank infinite time.
-    if (acc > effDur * 4) acc = effDur * 4;
+    if (acc > effDur * 4) acc = effDur * 4; // cap banked time when stalled
 
     while (acc >= effDur) {
       if (!canAfford(inv, recipe.inputs)) {
@@ -129,9 +142,23 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
         break;
       }
       take(inv, recipe.inputs);
-      give(inv, recipe.outputs);
+      const level = producesProduct ? levelForXp(xp[skill]) : 0;
+      for (const o of recipe.outputs) {
+        const def = getItem(o.item);
+        let qty = o.qty;
+        if (gather && recipe.inputs.length === 0) qty += gather; // bonus herbs on gather
+        if (def.kind === 'product') {
+          const grade = gradeFor(level, recipe.levelReq, qBonus);
+          const key = pkey(o.item, grade);
+          inv[key] = (inv[key] ?? 0) + qty;
+        } else if (o.item === 'insight') {
+          inv.insight = (inv.insight ?? 0) + Math.round(qty * insightMul);
+        } else {
+          inv[o.item] = (inv[o.item] ?? 0) + qty;
+        }
+        itemsMade += qty;
+      }
       xp[skill] += recipe.xp;
-      itemsMade += recipe.outputs.reduce((s, o) => s + o.qty, 0);
       acc -= effDur;
     }
     progress[skill] = acc;
@@ -154,7 +181,8 @@ function simulate(state: GameState, dt: number, opts: { spawnOrders: boolean }) 
         customerIcon: tpl.customerIcon,
         product: tpl.product,
         qty,
-        coins: Math.round(product.value * qty * 1.6),
+        minQuality: tpl.minQuality ?? 0,
+        coins: Math.round(product.value * qty * 1.6), // base reward at Fine quality
         reputation: qty,
         hospitalityXp: Math.round(product.value * qty * 0.6),
         story: tpl.story,
@@ -254,19 +282,40 @@ export const useGame = create<GameState>((set, get) => ({
     const s = get();
     const order = s.orders.find((o) => o.id === orderId);
     if (!order) return;
-    if ((s.inventory[order.product] ?? 0) < order.qty) return;
+
+    // Eligible product stacks are those at or above the customer's minimum grade.
+    // Spend the lowest acceptable grades first to preserve your finest stock.
+    const stacks = [0, 1, 2, 3]
+      .filter((g) => g >= order.minQuality)
+      .map((g) => ({ g, key: pkey(order.product, g), have: s.inventory[pkey(order.product, g)] ?? 0 }))
+      .filter((x) => x.have > 0)
+      .sort((a, b) => a.g - b.g);
+    const available = stacks.reduce((sum, x) => sum + x.have, 0);
+    if (available < order.qty) return;
+
     const inv = { ...s.inventory };
-    inv[order.product] -= order.qty;
+    let need = order.qty;
+    let valueSum = 0;
+    for (const st of stacks) {
+      if (need <= 0) break;
+      const take = Math.min(st.have, need);
+      inv[st.key] = st.have - take;
+      if (inv[st.key] <= 0) delete inv[st.key];
+      valueSum += take * quality(st.g).valueMult;
+      need -= take;
+    }
+    const avgMult = valueSum / order.qty;
+    const coins = Math.round(order.coins * avgMult);
     const xp = { ...s.skillXp };
     xp.hospitality += order.hospitalityXp;
     set({
       inventory: inv,
-      coins: s.coins + order.coins,
+      coins: s.coins + coins,
       reputation: s.reputation + order.reputation,
       skillXp: xp,
       orders: s.orders.filter((o) => o.id !== orderId),
       stats: { ...s.stats, ordersFilled: s.stats.ordersFilled + 1 },
-      log: pushLog(s, `${order.customer} is delighted! +${order.coins}🪙 +${order.reputation}❤`, 'great'),
+      log: pushLog(s, `${order.customer} is delighted! +${coins}🪙 +${order.reputation}❤`, 'great'),
       logSeq: s.logSeq + 1,
     });
   },
@@ -279,6 +328,22 @@ export const useGame = create<GameState>((set, get) => ({
       coins: s.coins - up.cost,
       upgrades: [...s.upgrades, id],
       log: pushLog(s, `Bought ${up.name}. ${up.effectText}`, 'good'),
+      logSeq: s.logSeq + 1,
+    });
+  },
+
+  buyPerk: (id) => {
+    const s = get();
+    const perk = PERK_BY_ID[id];
+    if (!perk || s.perks.includes(id)) return;
+    if (perk.requires && !s.perks.includes(perk.requires)) return;
+    const have = s.inventory.insight ?? 0;
+    if (have < perk.cost) return;
+    const inv = { ...s.inventory, insight: have - perk.cost };
+    set({
+      inventory: inv,
+      perks: [...s.perks, id],
+      log: pushLog(s, `Researched ${perk.name}. ${perk.desc}`, 'great'),
       logSeq: s.logSeq + 1,
     });
   },
@@ -311,9 +376,9 @@ export const useGame = create<GameState>((set, get) => ({
     const next = simulate(s, elapsed, { spawnOrders: false });
     set(next);
     const gains: Record<string, number> = {};
-    for (const [id, qty] of Object.entries(next.inventory)) {
-      const delta = qty - (before[id] ?? 0);
-      if (delta > 0) gains[id] = delta;
+    for (const [key, qty] of Object.entries(next.inventory)) {
+      const delta = qty - (before[key] ?? 0);
+      if (delta > 0) gains[baseId(key)] = (gains[baseId(key)] ?? 0) + delta; // merge quality stacks
     }
     return { seconds: Math.floor(elapsed), gains, coins: get().coins - beforeCoins };
   },
@@ -339,6 +404,7 @@ export function saveGame() {
     progress: s.progress,
     discovered: s.discovered,
     upgrades: s.upgrades,
+    perks: s.perks,
     orders: s.orders,
     nextOrderAt: s.nextOrderAt,
     stats: s.stats,

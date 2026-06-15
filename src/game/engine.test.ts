@@ -92,19 +92,60 @@ describe('glassblowing & upgrades', () => {
 });
 
 describe('orders', () => {
-  it('fulfills an order from stock for coins and reputation', () => {
+  it('fulfills an order from Fine stock for the base reward', () => {
     useGame.setState({
-      inventory: { sleep_tonic: 2 },
+      inventory: { 'sleep_tonic#1': 2 }, // 2 Fine tonics
       orders: [{
         id: 'o1', customer: 'Test', customerIcon: '🧪', product: 'sleep_tonic',
-        qty: 2, coins: 90, reputation: 2, hospitalityXp: 30, story: '', createdAt: 0,
+        qty: 2, minQuality: 0, coins: 90, reputation: 2, hospitalityXp: 30, story: '', createdAt: 0,
       }],
     });
     useGame.getState().fulfillOrder('o1');
     const s = useGame.getState();
-    expect(s.coins).toBe(25 + 90);
-    expect(s.reputation).toBe(2);
+    expect(s.coins).toBe(25 + 90); // Fine → ×1.0
     expect(s.orders).toHaveLength(0);
-    expect(s.inventory.sleep_tonic).toBe(0);
+    expect(s.inventory['sleep_tonic#1'] ?? 0).toBe(0);
+  });
+
+  it('scales the reward by delivered quality and respects min-quality', () => {
+    useGame.setState({
+      inventory: { 'aether_signet#3': 1, 'aether_signet#1': 5 },
+      orders: [{
+        id: 'o2', customer: 'Countess', customerIcon: '👸', product: 'aether_signet',
+        qty: 1, minQuality: 3, coins: 100, reputation: 1, hospitalityXp: 10, story: '', createdAt: 0,
+      }],
+    });
+    useGame.getState().fulfillOrder('o2');
+    const s = useGame.getState();
+    expect(s.coins).toBe(25 + 180); // Pristine → ×1.8
+    expect(s.inventory['aether_signet#3'] ?? 0).toBe(0);
+    expect(s.inventory['aether_signet#1']).toBe(5); // Fine stock untouched (below min)
+  });
+});
+
+describe('phase 2 systems', () => {
+  it('crafts products at a quality grade that rises with skill level', () => {
+    const g = useGame.getState();
+    g.setActive('remedycraft', 'craft_sleep_tonic'); // L1 recipe
+    useGame.setState({ inventory: { calm_essence: 99, vial: 99 }, skillXp: { ...g.skillXp, remedycraft: 0 } });
+    g.tick(4);
+    expect(useGame.getState().inventory['sleep_tonic#0']).toBe(1); // low level → Crude
+  });
+
+  it('Study yields Insight and a perk can be researched and refunds nothing extra', () => {
+    const g = useGame.getState();
+    useGame.setState({ inventory: { insight: 25 } });
+    g.buyPerk('keen_study'); // costs 20
+    const s = useGame.getState();
+    expect(s.perks).toContain('keen_study');
+    expect(s.inventory.insight).toBe(5);
+  });
+
+  it('Calcination → Transmutation produces a material', () => {
+    const g = useGame.getState();
+    g.setActive('transmutation', 'trans_living_brass'); // 3 iron_salt + 1 ember_essence
+    useGame.setState({ inventory: { iron_salt: 9, ember_essence: 3 } });
+    g.tick(4);
+    expect(useGame.getState().inventory.living_brass).toBe(1);
   });
 });

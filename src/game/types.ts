@@ -9,8 +9,12 @@ export type SkillId =
   | 'gardening'
   | 'separation'
   | 'glassblowing'
+  | 'calcination'
   | 'conjunction'
+  | 'distillation'
+  | 'transmutation'
   | 'remedycraft'
+  | 'lore'
   | 'hospitality';
 
 /** Broad category an item belongs to — used for inventory grouping & filtering. */
@@ -18,8 +22,11 @@ export type ItemKind =
   | 'mote' // raw element essence
   | 'ingredient' // gathered flora/minerals
   | 'essence' // refined / combined intermediate
+  | 'material' // salts, ash, alloys — feedstock for the Materials tree
+  | 'tool' // a crafted item that grants a passive bonus while owned
   | 'vessel' // glassware that holds finished goods
-  | 'product' // a finished, sellable good
+  | 'product' // a finished, sellable good (carries a quality grade)
+  | 'token' // abstract currency-like items (Insight)
   | 'byproduct'; // muddle, compost, etc.
 
 export type ProductTree = 'remedy' | 'feeling' | 'material';
@@ -67,7 +74,15 @@ export interface Recipe {
   outputs: ItemStack[];
   /** How this recipe becomes available to the player. */
   unlock: 'taught' | 'experiment';
+  /** If set, the recipe stays hidden until this research perk is owned. */
+  perkReq?: string;
   blurb?: string;
+}
+
+/** Tool items grant a passive bonus to a skill (or all) while held in the larder. */
+export interface ToolBonus {
+  /** +N product quality grades for this skill, or 'all'. */
+  quality?: { skill: SkillId | 'all'; amount: number };
 }
 
 export interface SkillDef {
@@ -85,6 +100,7 @@ export interface Order {
   customerIcon: string;
   product: string; // item id
   qty: number;
+  minQuality: number; // 0..3 — the lowest grade this customer will accept
   coins: number;
   reputation: number;
   hospitalityXp: number;

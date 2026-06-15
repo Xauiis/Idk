@@ -237,6 +237,18 @@ button { font-family: inherit; cursor: pointer; }
 .inv-cell .em { font-size: 21px; }
 .inv-cell .q { font-size: 11px; font-weight: 800; color: var(--text); }
 .inv-cell .dot { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; }
+.inv-cell .grade { position: absolute; top: 3px; left: 5px; font-size: 10px; font-weight: 800; }
+
+/* Research log */
+.research-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 12px; }
+.perk { background: var(--panel-2); border: 1px solid var(--border-soft); border-radius: var(--r-sm); padding: 13px; display: flex; flex-direction: column; gap: 8px; }
+.perk.owned { border-color: var(--good); }
+.perk.locked { opacity: 0.6; }
+.perk .top { display: flex; align-items: center; gap: 9px; }
+.perk .ic { font-size: 22px; }
+.perk .nm { font-weight: 800; font-size: 14.5px; }
+.perk .desc { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+.insight-pill { display: inline-flex; align-items: center; gap: 6px; background: var(--panel-3); border: 1px solid var(--border); border-radius: 999px; padding: 6px 13px; font-weight: 800; }
 .inv-empty { color: var(--faint); font-size: 13px; padding: 16px 4px; text-align: center; }
 .log { display: flex; flex-direction: column; gap: 7px; max-height: 280px; overflow: auto; }
 .log .entry { font-size: 12.5px; line-height: 1.4; padding: 7px 10px; border-radius: 9px; background: var(--panel-2); border-left: 3px solid var(--border); }

@@ -70,10 +70,43 @@ const ESSENCES: ItemDef[] = [
   { id: 'sunforge_essence', name: 'Sunforge Essence', kind: 'essence', icon: '🌅', color: '#f0b85e', tier: 5, value: 60, blurb: 'Where dawn meets the anvil.' },
 ];
 
+// ── Distillates (Distillation output; potent refined essences) ──
+const DISTILLATES: ItemDef[] = [
+  { id: 'serene_distillate', name: 'Serene Distillate', kind: 'essence', icon: '💠', color: '#a8c2ec', tier: 4, value: 36, blurb: 'Calm, reduced to its essence.' },
+  { id: 'radiant_distillate', name: 'Radiant Distillate', kind: 'essence', icon: '🔆', color: '#f0d066', tier: 4, value: 40, blurb: 'Light made dense and slow.' },
+  { id: 'deepdream_distillate', name: 'Deepdream Distillate', kind: 'essence', icon: '🌌', color: '#7a8fd0', tier: 5, value: 56, blurb: 'A whole night of rest in one bead.' },
+  { id: 'solar_distillate', name: 'Solar Distillate', kind: 'essence', icon: '🟡', color: '#f0b045', tier: 6, value: 80, blurb: 'You can feel it warming the vial.' },
+];
+
+// ── Materials (Calcination & Transmutation feedstock) ──
+const MATERIALS: ItemDef[] = [
+  { id: 'iron_salt', name: 'Iron Salt', kind: 'material', icon: '🧂', color: '#b98a5a', tier: 1, value: 3, blurb: 'Rusty crystals from calcined root.' },
+  { id: 'ember_ash', name: 'Ember Ash', kind: 'material', icon: '⬛', color: '#7a5240', tier: 1, value: 4, blurb: 'Still faintly warm.' },
+  { id: 'white_salt', name: 'White Salt', kind: 'material', icon: '⬜', color: '#d8d2c2', tier: 2, value: 5, blurb: 'Pure, fine and bright.' },
+  { id: 'lumen_ash', name: 'Lumen Ash', kind: 'material', icon: '✩', color: '#e6cf6a', tier: 3, value: 9, blurb: 'Glows faintly in the dark.' },
+  { id: 'astral_salt', name: 'Astral Salt', kind: 'material', icon: '❉', color: '#b89be0', tier: 4, value: 14, blurb: 'Tastes of cold starlight.' },
+  { id: 'living_brass', name: 'Living Brass', kind: 'material', icon: '🟨', color: '#cda14a', tier: 2, value: 18, blurb: 'Warm metal that flexes like muscle.' },
+  { id: 'dreamsilk', name: 'Dreamsilk', kind: 'material', icon: '🧵', color: '#c9b6e0', tier: 3, value: 24, blurb: 'Woven from settled mist.' },
+  { id: 'glass_lens', name: 'Glass Lens', kind: 'material', icon: '🔍', color: '#9fd0dd', tier: 3, value: 28, blurb: 'Ground until the world bends through it.' },
+  { id: 'aether_alloy', name: 'Aether Alloy', kind: 'material', icon: '🔷', color: '#9b7ad0', tier: 5, value: 60, blurb: 'It hums when you are not looking.' },
+];
+
+// ── Tools (crafted; grant a passive bonus while held) ──
+const TOOLS: ItemDef[] = [
+  { id: 'fine_dropper', name: 'Fine Dropper', kind: 'tool', icon: '💧', color: '#cda14a', tier: 2, value: 0, blurb: 'A steady hand for Remedycraft: +1 remedy quality.' },
+  { id: 'jewelers_loupe', name: "Jeweler's Loupe", kind: 'tool', icon: '🔎', color: '#cda14a', tier: 3, value: 0, blurb: 'A keen eye for treasures: +1 Transmutation quality.' },
+  { id: 'master_alembic', name: 'Master Alembic', kind: 'tool', icon: '⚗️', color: '#c89bee', tier: 5, value: 0, blurb: 'Mastercraft glass: +1 quality to every product.' },
+];
+
 // ── Vessels (Glassblowing output; required to bottle products) ──
 const VESSELS: ItemDef[] = [
   { id: 'vial', name: 'Glass Vial', kind: 'vessel', icon: '🥃', color: '#9fd0dd', tier: 1, value: 2, blurb: 'A simple bottle for simple cures.' },
   { id: 'flask', name: 'Aether Flask', kind: 'vessel', icon: '⏳', color: '#c89bee', tier: 2, value: 8, blurb: 'Glass that can hold a little wonder.' },
+];
+
+// ── Tokens ──
+const TOKENS: ItemDef[] = [
+  { id: 'insight', name: 'Insight', kind: 'token', icon: '💡', color: '#e7c46b', tier: 1, value: 0, blurb: 'A spark of understanding. Spend it in the Research Log.' },
 ];
 
 // ── Products (finished, sellable goods) ──
@@ -86,8 +119,16 @@ const PRODUCTS: ItemDef[] = [
   { id: 'courage_cordial', name: 'Courage Cordial', kind: 'product', tree: 'feeling', icon: '🦁', color: '#e08a52', tier: 2, value: 66, blurb: 'A warm spine in a bottle.' },
   { id: 'clarity_elixir', name: 'Clarity Elixir', kind: 'product', tree: 'remedy', icon: '⚗️', color: '#cba6ec', tier: 3, value: 90, blurb: 'The world, in sharper focus.' },
   { id: 'dreamless_philtre', name: 'Dreamless Philtre', kind: 'product', tree: 'feeling', icon: '🌑', color: '#8aa0d8', tier: 3, value: 110, blurb: 'Rest with no shadows in it.' },
-  { id: 'sunforge_potion', name: 'Sunforge Potion', kind: 'product', tree: 'material', icon: '🌅', color: '#f0b85e', tier: 4, value: 170, blurb: 'Liquid daybreak. Handle with care.' },
+  { id: 'sunforge_potion', name: 'Sunforge Potion', kind: 'product', tree: 'remedy', icon: '🌅', color: '#f0b85e', tier: 4, value: 170, blurb: 'Liquid daybreak. Handle with care.' },
   { id: 'panacea', name: 'Lesser Panacea', kind: 'product', tree: 'remedy', icon: '🏆', color: '#f0d98a', tier: 5, value: 260, blurb: 'Not quite the Great Work — but close.' },
+  // distillate-grade remedies (Phase 2)
+  { id: 'tranquil_balm', name: 'Tranquil Balm', kind: 'product', tree: 'feeling', icon: '🪷', color: '#a8c2ec', tier: 4, value: 150, blurb: 'Stillness you can wear all day.' },
+  { id: 'dawnlight_tonic', name: 'Dawnlight Tonic', kind: 'product', tree: 'remedy', icon: '🌞', color: '#f0d066', tier: 5, value: 220, blurb: 'Bottled sunrise for the dreariest dark.' },
+  // Materials-tree luxury goods (Transmutation; sellable, carry quality)
+  { id: 'brass_charm', name: 'Brass Charm', kind: 'product', tree: 'material', icon: '🔔', color: '#cda14a', tier: 2, value: 90, blurb: 'Wards off a little bad luck.' },
+  { id: 'dreamsilk_sachet', name: 'Dreamsilk Sachet', kind: 'product', tree: 'material', icon: '🎀', color: '#c9b6e0', tier: 3, value: 130, blurb: 'Tucked under a pillow for sweet dreams.' },
+  { id: 'lens_ornament', name: 'Crystal Lens Ornament', kind: 'product', tree: 'material', icon: '💎', color: '#9fd0dd', tier: 4, value: 190, blurb: 'Catches the light and scatters rainbows.' },
+  { id: 'aether_signet', name: 'Aether Signet', kind: 'product', tree: 'material', icon: '💍', color: '#9b7ad0', tier: 5, value: 340, blurb: 'A ring that remembers its wearer.' },
 ];
 
 // ── Byproducts ──
@@ -95,7 +136,17 @@ const BYPRODUCTS: ItemDef[] = [
   { id: 'muddle', name: 'Muddle', kind: 'byproduct', icon: '🌫️', color: '#8a8090', tier: 0, value: 0, blurb: 'A failed brew. Compost it for a little Terra.' },
 ];
 
-export const ITEMS: ItemDef[] = [...MOTES, ...INGREDIENTS, ...ESSENCES, ...VESSELS, ...PRODUCTS, ...BYPRODUCTS];
+export const ITEMS: ItemDef[] = [
+  ...MOTES, ...INGREDIENTS, ...ESSENCES, ...DISTILLATES, ...MATERIALS, ...TOOLS,
+  ...VESSELS, ...TOKENS, ...PRODUCTS, ...BYPRODUCTS,
+];
+
+/** Tool bonuses, keyed by tool item id. */
+export const TOOL_BONUS: Record<string, import('../types').ToolBonus> = {
+  fine_dropper: { quality: { skill: 'remedycraft', amount: 1 } },
+  jewelers_loupe: { quality: { skill: 'transmutation', amount: 1 } },
+  master_alembic: { quality: { skill: 'all', amount: 1 } },
+};
 
 export const ITEM_BY_ID: Record<string, ItemDef> = Object.fromEntries(ITEMS.map((i) => [i.id, i]));
 

@@ -6,6 +6,7 @@ export interface OrderTemplate {
   customerIcon: string;
   product: string;
   qtyRange: [number, number];
+  minQuality?: number; // 0..3 — the lowest grade this customer will accept
   story: string;
 }
 
@@ -30,4 +31,17 @@ export const ORDER_TEMPLATES: OrderTemplate[] = [
     story: 'We sail into the grey at dawn. I want a little daylight in a bottle.' },
   { customer: 'The Grey Pilgrim', customerIcon: '🧙', product: 'panacea', qtyRange: [1, 1],
     story: 'I have walked far and ache all over. They say you are nearly a master now…' },
+  // Phase 2: distillate remedies & luxury goods, some with quality demands
+  { customer: 'Lady Vesper', customerIcon: '👩‍🦳', product: 'tranquil_balm', qtyRange: [1, 2], minQuality: 1,
+    story: 'Court is exhausting. I shall only take the Fine grade or better, naturally.' },
+  { customer: 'Sister Lune', customerIcon: '🧝', product: 'dawnlight_tonic', qtyRange: [1, 1], minQuality: 2,
+    story: 'For the dawn vigil — it must be Pure, nothing less will do.' },
+  { customer: 'Merchant Cole', customerIcon: '🧔', product: 'brass_charm', qtyRange: [2, 4],
+    story: 'Charms sell well at the fair. Send me whatever you can spare!' },
+  { customer: 'Goodwife Plum', customerIcon: '👩', product: 'dreamsilk_sachet', qtyRange: [1, 2],
+    story: 'A little something to tuck under the children’s pillows.' },
+  { customer: 'Collector Vance', customerIcon: '🤵', product: 'lens_ornament', qtyRange: [1, 1], minQuality: 2,
+    story: 'I display only the Pure. A flawed ornament would shame my cabinet.' },
+  { customer: 'The Archcountess', customerIcon: '👸', product: 'aether_signet', qtyRange: [1, 1], minQuality: 3,
+    story: 'A signet for my heir. It must be Pristine — utterly perfect.' },
 ];
